@@ -27,13 +27,7 @@ Le dossier **"conception"** centralise toute la documentation relative à la con
     - **Diagramme de composants** : Illustrations des différents composants du système et leurs interactions.
     - **Diagramme de séquence** : Détaille le flux des événements dans un scénario typique (ex. commande, paiement).
 
-2. **Architecture.md** : Fournit une vue d'ensemble de l'architecture du projet, expliquant les choix d'architecture et la division du projet en couches.
-
-3. **Exigences.md** : Décrit les exigences fonctionnelles et non fonctionnelles du système.
-
-4. **Choix techniques.md** : Explique les choix techniques réalisés, notamment les choix des technologies (Spring Boot, PostgreSQL, Stripe, etc.), ainsi que les décisions concernant la sécurité, la gestion des utilisateurs, etc.
-
-5. **Swagger Documentation** : Le projet utilise [Springdoc OpenAPI](https://springdoc.org/) pour générer automatiquement la documentation de l'API REST. Vous pouvez accéder à la documentation Swagger de l'API via le lien suivant :
+2. **Swagger Documentation** : Le projet utilise [Springdoc OpenAPI](https://springdoc.org/) pour générer automatiquement la documentation de l'API REST. Vous pouvez accéder à la documentation Swagger de l'API via le lien suivant :
     - [Swagger UI Documentation](http://localhost:8080/swagger-ui.html)
 
 ## Dépendances
@@ -41,7 +35,7 @@ Le dossier **"conception"** centralise toute la documentation relative à la con
 - Java 21
 - PostgreSQL
 - Spring Security + JWT pour la gestion des utilisateurs
-- Stripe pour le paiement
+- X pour le paiement
 - Springdoc OpenAPI pour Swagger
 
 ## Instructions de démarrage
