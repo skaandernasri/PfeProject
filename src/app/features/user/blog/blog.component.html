@@ -1,0 +1,15 @@
+<div class="container mx-auto px-4">
+  <h1 class="text-3xl font-bold mb-8">Our Blog</h1>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <!-- Blog Posts -->
+    <article *ngFor="let post of blogPosts" class="bg-[var(--surface)] rounded-lg shadow-md overflow-hidden">
+      <img [src]="post.image" [alt]="post.title" class="w-full h-48 object-cover">
+      <div class="p-6">
+        <h2 class="text-xl font-semibold mb-2">{{ post.title }}</h2>
+        <p class="text-sm text-[var(--text)] mb-4">{{ post.date }}</p>
+        <p class="text-[var(--text)] mb-4">{{ post.excerpt }}</p>
+        <a [routerLink]="['/blog', post.id]" class="text-[var(--primary)] hover:underline">Read More →</a>
+      </div>
+    </article>
+  </div>
+</div>

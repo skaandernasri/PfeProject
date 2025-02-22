@@ -1,0 +1,20 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-3xl mx-auto">
+    <a routerLink="/blog" class="text-[var(--primary)] hover:underline mb-4 inline-block">← Back to Blog</a>
+    
+    <article *ngIf="post" class="bg-[var(--surface)] rounded-lg shadow-md overflow-hidden">
+      <img [src]="post.image" [alt]="post.title" class="w-full h-64 object-cover">
+      <div class="p-8">
+        <h1 class="text-3xl font-bold mb-4">{{ post.title }}</h1>
+        <p class="text-[var(--text)] mb-2">{{ post.date }}</p>
+        <div class="prose prose-lg max-w-none mt-8">
+          {{ post.content }}
+        </div>
+      </div>
+    </article>
+
+    <div *ngIf="!post" class="text-center py-8">
+      <p class="text-[var(--text)]">Post not found</p>
+    </div>
+  </div>
+</div>

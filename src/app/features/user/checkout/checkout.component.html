@@ -1,0 +1,62 @@
+<div class="container mx-auto px-4">
+  <h1 class="text-3xl font-bold mb-8">Checkout</h1>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Shipping Information -->
+    <div class="bg-[var(--surface)] rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-semibold mb-6">Shipping Information</h2>
+      <form class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">First Name</label>
+            <input type="text" class="w-full p-2 border rounded bg-[var(--background)]">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Last Name</label>
+            <input type="text" class="w-full p-2 border rounded bg-[var(--background)]">
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-2">Address</label>
+          <input type="text" class="w-full p-2 border rounded bg-[var(--background)]">
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">City</label>
+            <input type="text" class="w-full p-2 border rounded bg-[var(--background)]">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">State</label>
+            <input type="text" class="w-full p-2 border rounded bg-[var(--background)]">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">ZIP Code</label>
+            <input type="text" class="w-full p-2 border rounded bg-[var(--background)]">
+          </div>
+        </div>
+      </form>
+    </div>
+    <!-- Payment Information -->
+    <div class="bg-[var(--surface)] rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-semibold mb-6">Payment Information</h2>
+      <form class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-2">Card Number</label>
+          <input type="text" class="w-full p-2 border rounded bg-[var(--background)]">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">Expiration Date</label>
+            <input type="text" class="w-full p-2 border rounded bg-[var(--background)]" placeholder="MM/YY">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">CVV</label>
+            <input type="text" class="w-full p-2 border rounded bg-[var(--background)]">
+          </div>
+        </div>
+        <button class="w-full bg-[var(--primary)] text-white py-2 rounded mt-6 hover:opacity-90">
+          Place Order
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
