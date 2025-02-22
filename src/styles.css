@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Light Theme Variables */
+  --primary: theme('colors.light-primary');
+  --secondary: theme('colors.light-secondary');
+  --background: theme('colors.light-background');
+  --surface: theme('colors.light-surface');
+  --text: theme('colors.light-text');
+}
+
+/* Dark Theme */
+.theme-dark {
+  --primary: theme('colors.dark-primary');
+  --secondary: theme('colors.dark-secondary');
+  --background: theme('colors.dark-background');
+  --surface: theme('colors.dark-surface');
+  --text: theme('colors.dark-text');
+}
+
+/* Colorful Theme */
+.theme-colorful {
+  --primary: theme('colors.colorful-primary');
+  --secondary: theme('colors.colorful-secondary');
+  --background: theme('colors.colorful-background');
+  --surface: theme('colors.colorful-surface');
+  --text: theme('colors.colorful-text');
+}
+
+body {
+  @apply bg-[var(--background)] text-[var(--text)];
+}
