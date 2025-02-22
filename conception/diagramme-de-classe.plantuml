@@ -1,0 +1,245 @@
+@startuml
+
+class Authentification {
+    +id: Long
+    +type: TypeAuthentification
+    +motDePasse: String  // Seulement pour les connexions par email
+    +providerId: String  // ID unique de Facebook/Google (nullable)
+    +utilisateur: Utilisateur
+}
+
+enum TypeAuthentification {
+    EMAIL
+    FACEBOOK
+    GOOGLE
+}
+
+class Utilisateur {
+    +id: Long
+    +nom: String
+    +email: String
+    +roles: Set<Role>
+}
+
+enum Role {
+    CLIENT
+    GESTIONNAIRE
+    ADMIN
+    REDACTEUR
+    SUPER_ADMIN
+}
+
+class Produit {
+    +id: Long
+    +nom: String
+    +description: String
+    +prix: Double
+    +stock: int
+    +categorie: Categorie
+    +promotions: Set<Promotion>
+}
+
+class ImageProduit {
+    +id: Long
+    +url: String
+    +produit: Produit
+}
+
+class Categorie {
+    +id: Long
+    +nom: String
+    +description: String
+}
+
+class Commande {
+    +id: Long
+    +date: Date
+    +statut: StatutCommande
+    +utilisateur: Utilisateur
+    +modePaiement: ModePaiement
+    +codePromo: CodePromo
+}
+
+enum StatutCommande {
+    EN_COURS
+    EXPEDIEE
+    LIVREE
+}
+
+enum ModePaiement {
+    CARTE_BANCAIRE
+    VIREMENT
+    A_LIVRAISON
+}
+
+class LigneCommande {
+    +id: Long
+    +produit: Produit
+    +quantite: int
+    +prixTotal: Double
+}
+
+class BlogPost {
+    +id: Long
+    +titre: String
+    +contenu: String
+    +datePublication: Date
+    +auteur: Utilisateur
+}
+
+class ImageBlogPost {
+    +id: Long
+    +url: String
+    +blogPost: BlogPost
+}
+
+class Commentaire {
+    +id: Long
+    +contenu: String
+    +datePublication: Date
+    +auteur: Utilisateur
+    +blogPost: BlogPost
+}
+
+class Promotion {
+    +id: Long
+    +nom: String
+    +description: String
+    +pourcentageReduction: Double
+    +dateDebut: Date
+    +dateFin: Date
+}
+
+class CodePromo {
+    +id: Long
+    +code: String
+    +reduction: Double
+    +dateExpiration: Date
+}
+
+class GestionStock {
+    +suiviStock(): void
+    +suiviVente(): void
+    +suiviVenteParProduit(): Map<Produit, Integer>
+}
+
+class SuiviVentes {
+    +suivreVentes(): void
+}
+
+class GestionUtilisateur {
+    +ajouterUtilisateur(): void
+    +modifierUtilisateur(): void
+    +supprimerUtilisateur(): void
+}
+
+class Facture {
+    +id: Long
+    +commande: Commande
+    +dateEmission: Date
+    +total: Double
+    +genererFacture(): void
+}
+
+class Avis {
+    +id: Long
+    +note: int
+    +commentaire: String
+    +datePublication: Date
+    +utilisateur: Utilisateur
+    +produit: Produit
+}
+
+class HistoriqueCommande {
+    +id: Long
+    +dateCommande: Date
+    +statut: StatutCommande
+    +produits: Set<Produit>
+    +utilisateur: Utilisateur
+}
+
+class RetourProduit {
+    +id: Long
+    +raisonRetour: String
+    +dateRetour: Date
+    +produit: Produit
+    +utilisateur: Utilisateur
+}
+
+class Notification {
+    +id: Long
+    +message: String
+    +dateEnvoi: Date
+    +utilisateur: Utilisateur
+    +lire(): void
+}
+
+class Panier {
+    +id: Long
+    +produits: Set<Produit>
+    +utilisateur: Utilisateur
+    +ajouterProduit(produit: Produit): void
+    +supprimerProduit(produit: Produit): void
+    +viderPanier(): void
+}
+
+class SuiviClient {
+    +id: Long
+    +utilisateur: Utilisateur
+    +action: String
+    +date: Date
+}
+Utilisateur "1" -- "*" SuiviClient : effectue
+
+class GoogleAnalyticsService {
+    +suivreAction(utilisateur: Utilisateur, action: String): void
+}
+GoogleAnalyticsService "1" -- "*" SuiviClient : enregistre
+
+
+Utilisateur "1" -- "*" Commande : passe
+Commande "1" -- "*" LigneCommande : contient
+LigneCommande "*" -- "1" Produit : concerne
+Produit "*" -- "1" Categorie : appartient à
+Produit "1" -- "*" ImageProduit : possède
+Produit "1" -- "*" Promotion : bénéficie
+Commande "1" -- "0..1" CodePromo : applique
+Commande "1" -- "1" Facture : génère
+
+BlogPost "1" -- "*" ImageBlogPost : possède
+Utilisateur "1" -- "*" BlogPost : écrit
+BlogPost "1" -- "*" Commentaire : reçoit
+Utilisateur "1" -- "*" Commentaire : poste
+Utilisateur "1" -- "*" Role : possède
+
+GestionStock "1" -- "*" Produit : suit
+GestionStock "1" -- "*" Commande : suit
+
+SuiviVentes "1" -- "*" Commande : suit
+SuiviVentes "1" -- "*" Utilisateur : gère
+
+GestionUtilisateur "1" -- "*" Utilisateur : gère
+
+Utilisateur "1" -- "*" Avis : poste
+Produit "1" -- "*" Avis : reçoit
+
+Utilisateur "1" -- "*" HistoriqueCommande : consulte
+Produit "1" -- "*" HistoriqueCommande : appartient à
+
+Produit "1" -- "*" RetourProduit : est retourné
+Utilisateur "1" -- "*" RetourProduit : effectue
+
+Utilisateur "1" -- "*" Notification : reçoit
+
+Utilisateur "1" -- "1" Panier : possède
+Produit "1" -- "*" Panier : contient
+
+Utilisateur "1" -- "*" Authentification : utilise
+
+class GestionTemplate {
+    +changerTemplate(nouveauTemplate: String): void
+}
+
+GestionTemplate "1" -- "1" Utilisateur : modifie
+
+@enduml
