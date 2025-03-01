@@ -236,6 +236,10 @@ Produit "1" -- "*" Panier : contient
 
 Utilisateur "1" -- "*" Authentification : utilise
 
+Authentification "*" -- "1" TypeAuthentification
+Commande "*" -- "1" StatutCommande
+Commande "*" -- "1" ModePaiement
+
 class GestionTemplate {
     +changerTemplate(nouveauTemplate: String): void
 }

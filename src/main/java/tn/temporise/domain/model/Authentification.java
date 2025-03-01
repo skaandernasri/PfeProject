@@ -16,7 +16,7 @@ public class Authentification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private long  id;
-    @Column(name="motDePasse",nullable = false)
+    @Column(name="motDePasse")
     private String motDePasse;
     @Column(name="providerId")
     private String providerId;
@@ -29,6 +29,11 @@ public class Authentification {
 
     public Authentification(String motDePasse, TypeAuthentification type, Utilisateur user) {
         this.motDePasse = motDePasse;
+        this.type = type;
+        this.user = user;
+    }
+    public Authentification(Utilisateur user,String providerId, TypeAuthentification type) {
+        this.providerId = providerId;
         this.type = type;
         this.user = user;
     }

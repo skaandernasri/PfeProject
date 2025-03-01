@@ -15,7 +15,7 @@ public class Utilisateur {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private long  id;
-    @Column(name="nom",nullable = false)
+    @Column(name="nom")
     private String nom;
     @Column(name="email",nullable = false)
     private String email;
@@ -31,6 +31,18 @@ public class Utilisateur {
         this.nom = nom;
         this.roles.add(role);
         this.password=password;
+    }
+
+    public Utilisateur(String nom, String email, Role role) {
+        this.nom = nom;
+        this.email = email;
+        this.roles.add(role);
+    }
+
+    public Utilisateur(String email, Role role) {
+        this.email = email;
+        this.roles.add(role);
+        this.password="";
     }
 
     @Override

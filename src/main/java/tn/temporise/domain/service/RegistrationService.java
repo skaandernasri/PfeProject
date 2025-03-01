@@ -4,7 +4,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import tn.temporise.domain.model.Authentification;
+import tn.temporise.domain.model.TypeAuthentification;
 import tn.temporise.domain.model.Utilisateur;
+import tn.temporise.infrastructure.adapter.repository.AuthRepo;
 import tn.temporise.infrastructure.adapter.repository.UserRepo;
 
 @Service
@@ -12,10 +15,12 @@ public class RegistrationService {
 
     private final UserRepo userRepo;
     private final PasswordEncoder passwordEncoder;
+    private final AuthRepo authRepo;
 
-    public RegistrationService(UserRepo userRepo,PasswordEncoder passwordEncoder) {
+    public RegistrationService(UserRepo userRepo,PasswordEncoder passwordEncoder,AuthRepo authRepo) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
+        this.authRepo=authRepo;
     }
 
     public void register(Utilisateur user) {
@@ -26,14 +31,7 @@ public class RegistrationService {
         // Save the User
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepo.save(user);
-
-        // Create a new Authentification
-        //Authentification authentification = new Authentification();
-        //authentification.setMotDePasse(passwordEncoder.encode(request.getMotDePasse())); // Hash the password
-        //authentification.setType(TypeAuthentification.EMAIL); // Default authentication type
-        //authentification.setUser(user); // Link to the User
-
-        // Save the Authentification
-        //authentificationRepo.save(authentification);
+         //Save the Authentification
+        authRepo.save(new Authentification(passwordEncoder.encode(user.getPassword()),TypeAuthentification.EMAIL,user));
     }
 }
