@@ -1,3 +1,70 @@
 spring:
+  servlet:
+    context-path: "/tempo-rise/api"
   application:
      name: tempo-rise-api
+  threads:
+    virtual:
+      enabled: true
+  server:
+    shutdown: graceful
+  liquibase:
+    change-log: "classpath:/liquibase/db/changelog/master.yaml"
+  main:
+    allow-bean-definition-overriding: true
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+    favicon:
+      enabled: false
+  lifecycle:
+    timeout-per-shutdown-phase: 15s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - configprops
+          - env
+          - health
+          - info
+          - logfile
+          - loggers
+          - threaddump
+      base-path: /management
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+
+server:
+  port: 8080
+  error:
+    include-message: always
+springdoc:
+  swagger-ui:
+    operationsSorter: alpha
+    tagsSorter: alpha
+    tryItOutEnabled: true
+    use-root-path: true
+    enabled: true
+  api-docs:
+    enabled: true
+
+## Api Infos ###########################################
+api:
+  infos:
+    title: 'TEMPO RISE API'
+    description: 'Ecommerce backend'
+    name: TEMPO RISE
+    email: temporise.business@gmail.com
+    license: temporise
+    licenseUrl: http://www.temporise.tn
+    termsOfServiceUrl:
+    version: 1.0.0
+    basePackage: tn.temporise.api
+
+logging:
+  config: "classpath:logback-spring.xml"
