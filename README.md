@@ -1,4 +1,4 @@
-# Structure du projet ecommerce-app
+# Structure du projet tempo-rise-api
 
 Ce projet est une application Spring Boot 3 utilisant Java 21 et suit l'architecture hexagonale.
 L'objectif est de créer un site web e-commerce avec une base de données PostgreSQL, la gestion des utilisateurs via Spring Security et JWT, et l'intégration d'un système de paiement tiers.
@@ -328,34 +328,13 @@ Le dossier `test` contient les tests unitaires et d'intégration.
 ---
 
 ## 📂 `conception/`
-Le dossier `docs` contient la documentation du projet.
-
-### 📄 `architecture.md`
-- **Rôle** : Explication de l'architecture hexagonale utilisée dans le projet.
-
----
-
-## 📂 `liquibase/`
-Le dossier `liquibase` peut être utilisé pour organiser les fichiers de migration de la base de données.
-
-### 📄 `liquibase.properties`
-- **Rôle** : Configuration de Liquibase (par exemple, URL de la base de données, utilisateur, mot de passe).
-
-### 📁 `liquibase/changelog/`
-- **Rôle** : Contient les fichiers de changelog Liquibase.
-- **Exemple** :
-   - `changelog-master.xml` : Fichier maître qui référence tous les changelogs.
-   - `changelog-1.0.xml` : Fichier de changelog pour la version 1.0 de la base de données.
-   - `changelog-1.1.xml` : Fichier de changelog pour la version 1.1 de la base de données.
-
----
-
-## Dossier Conception
-Le dossier **"conception"** contient les diagrammes utilisés pour la modélisation de l'architecture et des interactions du système :
+Le dossier `conception` contient les diagrammes utilisés pour la modélisation de l'architecture et des interactions du système :
 - **Diagramme de cas d'utilisation** : Décrit les actions effectuées par les utilisateurs (ex. navigation, ajout au panier, commande, paiement).
 - **Diagramme de classes** : Montre la structure des classes principales du domaine et leurs relations.
 - **Diagramme de composants** : Illustrations des différents composants du système et leurs interactions.
 - **Diagramme de séquence** : Détaille le flux des événements dans un scénario typique (ex. commande, paiement).
+
+---
 
 ## Dépendances
 - Spring Boot 3
@@ -370,4 +349,6 @@ Le dossier **"conception"** contient les diagrammes utilisés pour la modélisat
 2. Configurez votre base de données PostgreSQL
 3. Exécutez `mvn spring-boot:run` pour démarrer l'application
 4. Vous pouvez aussi exécuter l'application via Docker avec la commande `docker-compose up`
-5. Accédez à la documentation Swagger UI : [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+5. Accédez à la documentation Swagger UI : [http://localhost:8080/tempo-rise/api/swagger-ui.html](http://localhost:8080/tempo-rise/api/swagger-ui.html)
+6. Pour mettre à jour le swagger, utilisez https://editor.swagger.io/
+7. Pour lancer la base de données, utilisez le docker-compose
