@@ -16,9 +16,10 @@ spring:
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      ddl-auto: update
+#    hibernate:
+#      ddl-auto: update
     show-sql: true
+
   liquibase:
     change-log: db/changelog/master.yaml
 
@@ -32,18 +33,3 @@ spring:
             scope:
               - email
               - profile
-
-    #properties:
-      #hibernate:
-       # default_schema: public
-    #  autoconfigure:
-    #    exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
-    #  security:
-    #    basic:
-    #      enabled: false
-    #    user:
-    #      name:
-    #      password:
-#  mybatis:
-#    mapperLocations=classpath*:**/xml/*:
-#      xml:

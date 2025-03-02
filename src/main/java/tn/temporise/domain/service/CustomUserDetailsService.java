@@ -38,16 +38,13 @@ public class CustomUserDetailsService implements UserDetailsService {
         );
     }
     public UserDetails loadOrCreateOAuth2User(String email) {
-        // Check if the user already exists in the database
         Utilisateur user = userRepo.findByEmail(email)
                 .orElseGet(() -> {
-                    // Create a new user if they don't exist
                     Utilisateur newUser = new Utilisateur();
                     newUser.setEmail(email);
                     newUser.setRoles(Collections.singleton(Role.CLIENT)); // Assign a default role
                     return userRepo.save(newUser);
                 });
-        // Return a UserDetails object without a password
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 "",

@@ -27,10 +27,11 @@ public class Authentification {
     @JoinColumn(name = "user_id", nullable = false)
     private Utilisateur user;
 
-    public Authentification(String motDePasse, TypeAuthentification type, Utilisateur user) {
+    public Authentification(String motDePasse, TypeAuthentification type, Utilisateur user,String providerId) {
         this.motDePasse = motDePasse;
         this.type = type;
         this.user = user;
+        this.providerId=providerId;
     }
     public Authentification(Utilisateur user,String providerId, TypeAuthentification type) {
         this.providerId = providerId;

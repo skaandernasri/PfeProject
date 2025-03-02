@@ -1,6 +1,5 @@
 package tn.temporise.application.mapper;
 
-import org.apache.ibatis.annotations.Select;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;

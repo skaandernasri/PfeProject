@@ -1,0 +1,27 @@
+@startuml
+actor Utilisateur
+participant "Frontend (Navigateur)" as Browser
+participant "RegistrationController" as Registration
+participant "RegistrationService" as Service
+participant "Base de données (Utilisateurs)" as DB
+
+== Inscription ==
+
+Utilisateur -> Browser : Saisir les informations (email, password)
+Browser -> Registration : Envoyer les informations (email, password)
+Registration -> Service : Appeler register(user)
+Service -> DB : Vérifier si l'email existe déjà
+alt Email existe déjà
+    DB -> Service : Retourner un conflit (409 Conflict)
+    Service -> Registration : Lancer ResponseStatusException
+    Registration -> Browser : Retourner une erreur (409 Conflict)
+    Browser -> Utilisateur : Afficher un message d'erreur
+else Email n'existe pas
+    DB -> Service : Confirmer que l'email est disponible
+    Service -> DB : Sauvegarder le nouvel utilisateur
+    DB -> Service : Confirmer l'enregistrement
+    Service -> Registration : Retourner un succès
+    Registration -> Browser : Retourner un succès (200 OK)
+    Browser -> Utilisateur : Rediriger vers la page de connexion
+end
+@enduml

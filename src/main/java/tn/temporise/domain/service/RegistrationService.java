@@ -23,7 +23,7 @@ public class RegistrationService {
         this.authRepo=authRepo;
     }
 
-    public void register(Utilisateur user) {
+    public void register(Utilisateur user) throws ResponseStatusException{
         // Check if the email is already registered
         if (userRepo.findByEmail(user.getEmail()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,"Email already registered");
@@ -32,6 +32,6 @@ public class RegistrationService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepo.save(user);
          //Save the Authentification
-        authRepo.save(new Authentification(passwordEncoder.encode(user.getPassword()),TypeAuthentification.EMAIL,user));
+        authRepo.save(new Authentification(passwordEncoder.encode(user.getPassword()),TypeAuthentification.EMAIL,user,"0"));
     }
 }
