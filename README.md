@@ -177,9 +177,10 @@ src/
 │   │   └── utils/
 │   │       └── JwtUtils.java
 │   └── client/
-│       ├── ExternalApiClient.java
-│       └── dto/
-│           └── ProductResponse.java
+│   │    ├── ExternalApiClient.java
+│   │
+│   └── dto/
+│     └── ProductResponse.java
 └── config/
     └── FeignConfig.java
 ```
