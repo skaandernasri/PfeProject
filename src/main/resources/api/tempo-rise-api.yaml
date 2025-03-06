@@ -1,0 +1,999 @@
+openapi: 3.0.3
+info:
+  title: API TEMPO RISE
+  description: >
+    L'API TEMPO RISE permet de gérer toutes les fonctionnalités essentielles d'un site de commerce en ligne. 
+    Elle inclut la gestion des produits, des utilisateurs, des commandes et des paiements. 
+    Cette API est conçue pour offrir une expérience d'achat fluide et sécurisée pour les utilisateurs finaux, 
+    tout en permettant aux administrateurs de gérer le catalogue, les utilisateurs et les transactions de manière efficace. 
+    Elle supporte l'authentification des utilisateurs, la gestion des paniers, la mise à jour des stocks, et le traitement des paiements.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/tempo-rise/api
+
+paths:
+  /v1/auth/signup:
+    post:
+      summary: Inscription d'un nouvel utilisateur
+      operationId: SignupUser
+      tags:
+        - Authentification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupUserRequest'
+      responses:
+        '201':
+          description: Utilisateur créé avec succès
+        '400':
+          description: Requête invalide (par exemple, email déjà utilisé)
+        '409':
+          description: Conflit (par exemple, utilisateur déjà existant)
+        '500':
+          description: Erreur serveur interne
+
+  /v1/auth/signin:
+    post:
+      summary: Connexion d'un utilisateur existant avec email et mot de passe
+      operationId: signinUser
+      tags:
+        - Authentification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SigninUserRequest'
+      responses:
+        '200':
+          description: Connexion réussie, retourne un token d'accès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '400':
+          description: Requête invalide (par exemple, mauvais format d'email ou mot de passe manquant)
+        '401':
+          description: Authentification échouée (email ou mot de passe incorrect)
+        '500':
+          description: Erreur serveur interne
+
+  /v1/auth/signin/google:
+    post:
+      summary: Connexion avec Google
+      operationId: signinGoogle
+      tags:
+        - Authentification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SigninGoogleRequest'
+      responses:
+        '200':
+          description: Connexion réussie, retourne un token d'accès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '400':
+          description: Requête invalide (par exemple, token Google manquant ou incorrect)
+        '401':
+          description: Authentification échouée (token Google invalide)
+        '500':
+          description: Erreur serveur interne
+
+  /v1/auth/signin/facebook:
+    post:
+      summary: Connexion avec Facebook
+      operationId: signinFacebook
+      tags:
+        - Authentification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SigninFacebookRequest'
+      responses:
+        '200':
+          description: Connexion réussie, retourne un token d'accès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '400':
+          description: Requête invalide (par exemple, token Facebook manquant ou incorrect)
+        '401':
+          description: Authentification échouée (token Facebook invalide)
+        '500':
+          description: Erreur serveur interne
+
+  /v1/auth/logout:
+    post:
+      summary: Déconnexion de l'utilisateur
+      operationId: logoutUser
+      tags:
+        - Authentification
+      responses:
+        '200':
+          description: Déconnexion réussie
+        '500':
+          description: Erreur serveur interne
+
+  /v1/auth/refresh:
+    post:
+      summary: Rafraîchir le token d'accès avec un refresh token
+      operationId: refreshToken
+      tags:
+        - Authentification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Token rafraîchi avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshTokenResponse'
+        '400':
+          description: Requête invalide (par exemple, refreshToken manquant)
+        '401':
+          description: Le token de rafraîchissement est invalide ou expiré
+        '500':
+          description: Erreur serveur interne
+
+  /v1/articles:
+    get:
+      summary: Récupérer tous les articles du blog
+      operationId: getAllArticles
+      tags:
+        - Articles
+      responses:
+        '200':
+          description: Liste des articles du blog
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ArticleResponse'
+    post:
+      summary: Créer un nouvel article dans le blog
+      operationId: createArticle
+      tags:
+        - Articles
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleRequest'
+      responses:
+        '201':
+          description: Article créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleResponse'
+
+  /v1/articles/{id}:
+    get:
+      summary: Récupérer un article par ID
+      operationId: getArticleById
+      tags:
+        - Articles
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de l'article à récupérer
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Article trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleResponse'
+        '404':
+          description: Article non trouvé
+    put:
+      summary: Mettre à jour un article
+      operationId: updateArticle
+      tags:
+        - Articles
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de l'article à mettre à jour
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleRequest'
+      responses:
+        '200':
+          description: Article mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleResponse'
+        '404':
+          description: Article non trouvé
+        '500':
+          description: Erreur serveur interne
+    delete:
+      summary: Supprimer un article du blog
+      operationId: deleteArticle
+      tags:
+        - Articles
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de l'article à supprimer
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Article supprimé
+        '404':
+          description: Article non trouvé
+        '500':
+          description: Erreur serveur interne
+
+  /v1/utilisateurs:
+    get:
+      summary: Récupérer tous les utilisateurs
+      operationId: getAllUtilisateurs
+      tags:
+        - Utilisateurs
+      responses:
+        '200':
+          description: Liste des utilisateurs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponse'
+    post:
+      summary: Créer un nouvel utilisateur
+      operationId: createUtilisateur
+      tags:
+        - Utilisateurs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+      responses:
+        '201':
+          description: Utilisateur créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  /v1/utilisateurs/{id}:
+    get:
+      summary: Récupérer un utilisateur par ID
+      operationId: getUtilisateurById
+      tags:
+        - Utilisateurs
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de l'utilisateur à récupérer
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Utilisateur trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          description: Utilisateur non trouvé
+    put:
+      summary: Mettre à jour un utilisateur
+      operationId: updateUtilisateur
+      tags:
+        - Utilisateurs
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de l'utilisateur à mettre à jour
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+      responses:
+        '200':
+          description: Utilisateur mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          description: Utilisateur non trouvé
+        '500':
+          description: Erreur serveur interne
+    delete:
+      summary: Supprimer un utilisateur
+      operationId: deleteUtilisateur
+      tags:
+        - Utilisateurs
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de l'utilisateur à supprimer
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Utilisateur supprimé
+        '404':
+          description: Utilisateur non trouvé
+        '500':
+          description: Erreur serveur interne
+
+  /v1/commandes:
+    get:
+      summary: Récupérer toutes les commandes
+      operationId: getAllCommandes
+      tags:
+        - Commandes
+      responses:
+        '200':
+          description: Liste des commandes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommandeResponse'
+    post:
+      summary: Créer une nouvelle commande
+      operationId: createCommande
+      tags:
+        - Commandes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommandeRequest'
+      responses:
+        '201':
+          description: Commande créée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandeResponse'
+
+  /v1/commandes/{id}:
+    get:
+      summary: Récupérer une commande par ID
+      operationId: getCommandeById
+      tags:
+        - Commandes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la commande à récupérer
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Commande trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandeResponse'
+        '404':
+          description: Commande non trouvée
+    put:
+      summary: Mettre à jour une commande
+      operationId: updateCommande
+      tags:
+        - Commandes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la commande à mettre à jour
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommandeRequest'
+      responses:
+        '200':
+          description: Commande mise à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandeResponse'
+        '404':
+          description: Commande non trouvée
+        '500':
+          description: Erreur serveur interne
+    delete:
+      summary: Supprimer une commande
+      operationId: deleteCommande
+      tags:
+        - Commandes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la commande à supprimer
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Commande supprimée
+        '404':
+          description: Commande non trouvée
+        '500':
+          description: Erreur serveur interne
+
+  /v1/paiements:
+    get:
+      summary: Récupérer tous les paiements
+      operationId: getAllPaiements
+      tags:
+        - Paiements
+      responses:
+        '200':
+          description: Liste des paiements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PaiementResponse'
+    post:
+      summary: Créer un nouveau paiement
+      operationId: createPaiement
+      tags:
+        - Paiements
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaiementRequest'
+      responses:
+        '201':
+          description: Paiement créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaiementResponse'
+
+  /v1/paiements/{id}:
+    get:
+      summary: Récupérer un paiement par ID
+      operationId: getPaiementById
+      tags:
+        - Paiements
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du paiement à récupérer
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Paiement trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaiementResponse'
+        '404':
+          description: Paiement non trouvé
+    put:
+      summary: Mettre à jour un paiement
+      operationId: updatePaiement
+      tags:
+        - Paiements
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du paiement à mettre à jour
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaiementRequest'
+      responses:
+        '200':
+          description: Paiement mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaiementResponse'
+        '404':
+          description: Paiement non trouvé
+        '500':
+          description: Erreur serveur interne
+    delete:
+      summary: Supprimer un paiement
+      operationId: deletePaiement
+      tags:
+        - Paiements
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du paiement à supprimer
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Paiement supprimé
+        '404':
+          description: Paiement non trouvé
+        '500':
+          description: Erreur serveur interne
+
+  /v1/paniers:
+    get:
+      summary: Récupérer tous les paniers
+      operationId: getAllPaniers
+      tags:
+        - Paniers
+      responses:
+        '200':
+          description: Liste des paniers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PanierResponse'
+    post:
+      summary: Créer un nouveau panier
+      operationId: createPanier
+      tags:
+        - Paniers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PanierRequest'
+      responses:
+        '201':
+          description: Panier créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PanierResponse'
+
+  /v1/paniers/{id}:
+    get:
+      summary: Récupérer un panier par ID
+      operationId: getPanierById
+      tags:
+        - Paniers
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du panier à récupérer
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Panier trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PanierResponse'
+        '404':
+          description: Panier non trouvé
+    put:
+      summary: Mettre à jour un panier
+      operationId: updatePanier
+      tags:
+        - Paniers
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du panier à mettre à jour
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PanierRequest'
+      responses:
+        '200':
+          description: Panier mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PanierResponse'
+        '404':
+          description: Panier non trouvé
+        '500':
+          description: Erreur serveur interne
+    delete:
+      summary: Supprimer un panier
+      operationId: deletePanier
+      tags:
+        - Paniers
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du panier à supprimer
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Panier supprimé
+        '404':
+          description: Panier non trouvé
+        '500':
+          description: Erreur serveur interne
+
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://accounts.google.com/o/oauth2/auth
+          tokenUrl: https://oauth2.googleapis.com/token
+          scopes:
+            email: Access email
+            profile: Access profile information
+  schemas:
+    SignupUserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: 'MotDePasseSecure123!'
+        nom:
+          type: string
+          example: 'Jean Dupont'
+        roles:
+          type: array
+          items:
+            type: string
+            example: 'CLIENT'
+      required:
+        - email
+        - password
+        - nom
+        - roles
+    UserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: 'MotDePasseSecure123!'
+        nom:
+          type: string
+          example: 'Jean Dupont'
+        roles:
+          type: array
+          items:
+            type: string
+            example: 'CLIENT'
+      required:
+        - email
+        - password
+        - nom
+        - roles
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        nom:
+          type: string
+          example: 'Jean Dupont'
+        roles:
+          type: array
+          items:
+            type: string
+            example: 'CLIENT'
+
+    SigninUserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: 'MotDePasseSecure123!'
+      required:
+        - email
+        - password
+
+    SigninGoogleRequest:
+      type: object
+      properties:
+        idToken:
+          type: string
+          example: 'google_token_example'
+      required:
+        - idToken
+
+    SigninFacebookRequest:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: 'facebook_token_example'
+      required:
+        - accessToken
+    RefreshTokenRequest:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+          example: 'refresh_token_example'
+      required:
+        - refreshToken
+    RefreshTokenResponse:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+          example: 'refresh_token_example'
+      required:
+        - refreshToken
+    TokenResponse:
+      type: object
+      properties:
+        Token:
+          type: string
+          example: 'token_example'
+      required:
+        - Token
+
+    ArticleRequest:
+      type: object
+      properties:
+        titre:
+          type: string
+          description: Le titre de l'article
+        contenu:
+          type: string
+          description: Le contenu de l'article
+        auteur:
+          type: string
+          description: L'auteur de l'article
+      required:
+        - titre
+        - contenu
+        - auteur
+
+    ArticleResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: L'ID unique de l'article
+        titre:
+          type: string
+          description: Le titre de l'article
+        contenu:
+          type: string
+          description: Le contenu de l'article
+        auteur:
+          type: string
+          description: L'auteur de l'article
+
+    CommandeRequest:
+      type: object
+      properties:
+        utilisateurId:
+          type: integer
+          format: int64
+          description: L'ID de l'utilisateur ayant passé la commande
+        dateCommande:
+          type: string
+          format: date-time
+          description: La date de la commande
+        statut:
+          type: string
+          description: Le statut de la commande
+      required:
+        - utilisateurId
+        - dateCommande
+        - statut
+
+    CommandeResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: L'ID unique de la commande
+        utilisateurId:
+          type: integer
+          format: int64
+          description: L'ID de l'utilisateur ayant passé la commande
+        dateCommande:
+          type: string
+          format: date-time
+          description: La date de la commande
+        statut:
+          type: string
+          description: Le statut de la commande
+
+    PaiementRequest:
+      type: object
+      properties:
+        commandeId:
+          type: integer
+          format: int64
+          description: L'ID de la commande associée
+        montant:
+          type: number
+          format: float
+          description: Le montant du paiement
+        methode:
+          type: string
+          description: La méthode de paiement utilisée
+      required:
+        - commandeId
+        - montant
+        - methode
+
+    PaiementResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: L'ID unique du paiement
+        commandeId:
+          type: integer
+          format: int64
+          description: L'ID de la commande associée
+        montant:
+          type: number
+          format: float
+          description: Le montant du paiement
+        methode:
+          type: string
+          description: La méthode de paiement utilisée
+
+    PanierRequest:
+      type: object
+      properties:
+        utilisateurId:
+          type: integer
+          format: int64
+          description: L'ID de l'utilisateur propriétaire du panier
+        articles:
+          type: array
+          items:
+            type: object
+            properties:
+              articleId:
+                type: integer
+                format: int64
+                description: L'ID de l'article dans le panier
+              quantite:
+                type: integer
+                description: La quantité de l'article dans le panier
+      required:
+        - utilisateurId
+        - articles
+
+    PanierResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: L'ID unique du panier
+        utilisateurId:
+          type: integer
+          format: int64
+          description: L'ID de l'utilisateur propriétaire du panier
+        articles:
+          type: array
+          items:
+            type: object
+            properties:
+              articleId:
+                type: integer
+                format: int64
+                description: L'ID de l'article dans le panier
+              quantite:
+                type: integer
+                description: La quantité de l'article dans le panier
+
+tags:
+  - name: Authentification
+    description: Gestion de l'authentification des utilisateurs
+  - name: Articles
+    description: Gestion des articles du blog
+  - name: Utilisateurs
+    description: Gestion des utilisateurs
+  - name: Commande
+    description: Gestion des commandes
+  - name: Paiements
+    description: Gestion des paiements
+  - name: Paniers
+    description: Gestion des paniers

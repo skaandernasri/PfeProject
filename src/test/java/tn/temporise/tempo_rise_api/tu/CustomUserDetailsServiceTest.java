@@ -10,11 +10,11 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import tn.temporise.domain.model.Role;
-import tn.temporise.domain.model.Utilisateur;
-import tn.temporise.domain.service.CustomUserDetailsService;
-import tn.temporise.infrastructure.adapter.repository.AuthRepo;
-import tn.temporise.infrastructure.adapter.repository.UserRepo;
+import tn.temporise.infrastructure.persistence.entity.Role;
+import tn.temporise.infrastructure.persistence.entity.Utilisateur;
+import tn.temporise.application.service.CustomUserDetailsService;
+import tn.temporise.domain.port.AuthRepo;
+import tn.temporise.domain.port.UserRepo;
 
 import java.util.Collections;
 import java.util.Optional;

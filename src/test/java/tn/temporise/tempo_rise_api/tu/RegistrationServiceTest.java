@@ -9,11 +9,11 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
-import tn.temporise.domain.model.Authentification;
-import tn.temporise.domain.model.Utilisateur;
-import tn.temporise.domain.service.RegistrationService;
-import tn.temporise.infrastructure.adapter.repository.AuthRepo;
-import tn.temporise.infrastructure.adapter.repository.UserRepo;
+import tn.temporise.infrastructure.persistence.entity.Authentification;
+import tn.temporise.infrastructure.persistence.entity.Utilisateur;
+import tn.temporise.application.service.RegistrationService;
+import tn.temporise.domain.port.AuthRepo;
+import tn.temporise.domain.port.UserRepo;
 
 import java.util.Optional;
 

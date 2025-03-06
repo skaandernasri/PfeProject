@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication(scanBasePackages = "tn.temporise")
 @EnableJpaRepositories(basePackages = "tn.temporise")
-@EntityScan(basePackages = "tn.temporise.domain.model")
+@EntityScan(basePackages = "tn.temporise.infrastructure.persistence.entity")
 public class TempoRiseApiApplication {
 
 	public static void main(String[] args) {
