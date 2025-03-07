@@ -2,9 +2,10 @@
 package tn.temporise.infrastructure.controller;
 
 import org.springframework.http.ResponseEntity;
+
+import tn.temporise.domain.model.Response;
 import tn.temporise.domain.model.UserRequest;
 import tn.temporise.domain.model.UserResponse;
-
 import tn.temporise.infrastructure.api.UtilisateursApi;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public class UserController implements UtilisateursApi {
     }
 
     @Override
-    public ResponseEntity<Void> _deleteUtilisateur(Long id) throws Exception {
+    public ResponseEntity<Response> _deleteUtilisateur(Long id) throws Exception {
         return null;
     }
 

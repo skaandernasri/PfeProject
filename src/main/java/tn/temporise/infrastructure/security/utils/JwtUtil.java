@@ -2,10 +2,13 @@ package tn.temporise.infrastructure.security.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Component;
+import tn.temporise.domain.model.CustomUserDetails;
+
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,22 +47,24 @@ public class JwtUtil {
     }
 
     // Generate Access Token
-    public String generateAccessToken(UserDetails userDetails) {
+    public String generateAccessToken(CustomUserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("roles",userDetails.getAuthorities()
                 .stream()
-                .map(authority -> authority.getAuthority())
+                .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList()));
+        claims.put("provider_id",userDetails.getProviderId());
         return createToken(claims, userDetails.getUsername(), accessTokenExpiration);
     }
 
     // Generate Refresh Token
-    public String generateRefreshToken(UserDetails userDetails) {
+    public String generateRefreshToken(CustomUserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("roles",userDetails.getAuthorities()
                 .stream()
                 .map(authority -> authority.getAuthority())
                 .collect(Collectors.toList()));
+        claims.put("provider_id",userDetails.getProviderId());
         return createToken(claims, userDetails.getUsername(), refreshTokenExpiration);
     }
     private String createToken(Map<String, Object> claims, String subject,long expiration) {

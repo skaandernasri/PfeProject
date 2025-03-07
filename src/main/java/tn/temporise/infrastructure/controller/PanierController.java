@@ -3,6 +3,7 @@ package tn.temporise.infrastructure.controller;
 import org.springframework.http.ResponseEntity;
 import tn.temporise.domain.model.PanierRequest;
 import tn.temporise.domain.model.PanierResponse;
+import tn.temporise.domain.model.Response;
 import tn.temporise.infrastructure.api.PaniersApi;
 
 import java.util.List;
@@ -14,7 +15,7 @@ public class PanierController implements PaniersApi {
     }
 
     @Override
-    public ResponseEntity<Void> _deletePanier(Long id) throws Exception {
+    public ResponseEntity<Response> _deletePanier(Long id) throws Exception {
         return null;
     }
 
