@@ -1,6 +1,5 @@
 package tn.temporise.infrastructure.repository;
 
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import tn.temporise.domain.port.AuthRepo;
@@ -8,6 +7,7 @@ import tn.temporise.infrastructure.persistence.entity.Authentification;
 import tn.temporise.infrastructure.persistence.entity.TypeAuthentification;
 import tn.temporise.infrastructure.persistence.entity.Utilisateur;
 
+import java.util.List;
 import java.util.Optional;
 @Repository
 public class AuthRepoImp implements AuthRepo {
@@ -94,4 +94,22 @@ public class AuthRepoImp implements AuthRepo {
             );return authentification;
         }
     }
+
+    @Override
+    public Optional<Authentification> findByToken(String token) {
+        String sql = "SELECT a.* FROM authentification a WHERE a.token = ?";
+
+        List<Authentification> authList = jdbcTemplate.query(sql, new Object[]{token}, (rs, rowNum) -> {
+            Authentification auth = new Authentification();
+            auth.setId(rs.getLong("id"));
+            auth.setPassword(rs.getString("password"));
+            auth.setProviderId(rs.getString("provider_id"));
+            auth.setToken(rs.getString("token"));
+            auth.setType(TypeAuthentification.valueOf(rs.getString("type")));
+            return auth;
+        });
+
+        return authList.isEmpty() ? Optional.empty() : Optional.of(authList.getFirst());
+    }
+
 }

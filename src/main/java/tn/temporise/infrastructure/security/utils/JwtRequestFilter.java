@@ -13,6 +13,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import tn.temporise.application.service.CustomUserDetailsService;
+import tn.temporise.domain.model.CustomUserDetails;
 
 import java.io.IOException;
 
@@ -49,7 +50,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 if (refreshToken != null) {
                     try {
                         email = jwtUtil.extractEmail(refreshToken);
-                        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                        CustomUserDetails userDetails = userDetailsService.loadUserByUsername(email);
                         if (jwtUtil.validateToken(refreshToken, userDetails)) {
                             // Generate new access token
                             String newAccessToken = jwtUtil.generateAccessToken(userDetails);

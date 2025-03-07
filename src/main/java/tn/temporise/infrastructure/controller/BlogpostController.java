@@ -1,9 +1,10 @@
 package tn.temporise.infrastructure.controller;
 
 import org.springframework.http.ResponseEntity;
+
 import tn.temporise.domain.model.ArticleRequest;
 import tn.temporise.domain.model.ArticleResponse;
-
+import tn.temporise.domain.model.Response;
 import tn.temporise.infrastructure.api.ArticlesApi;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public class BlogpostController implements ArticlesApi {
     }
 
     @Override
-    public ResponseEntity<Void> _deleteArticle(Long id) throws Exception {
+    public ResponseEntity<Response> _deleteArticle(Long id) throws Exception {
         return null;
     }
 

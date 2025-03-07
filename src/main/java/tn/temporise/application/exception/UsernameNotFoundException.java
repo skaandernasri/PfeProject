@@ -1,6 +1,6 @@
 package tn.temporise.application.exception;
 
-public class UsernameNotFoundException extends RuntimeException{
+public class UsernameNotFoundException extends Exception{
     public UsernameNotFoundException(String message) {
         super(message);
     }
