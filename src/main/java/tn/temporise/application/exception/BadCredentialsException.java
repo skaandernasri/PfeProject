@@ -1,12 +1,15 @@
 package tn.temporise.application.exception;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-public class NonLocalProviderException extends RuntimeException {
+public class BadCredentialsException extends RuntimeException {
     private final String code;
-    public NonLocalProviderException(String message,String code) {
+    public BadCredentialsException(String message,String code) {
         super(message);
         this.code=code;
     }
+
+
 }
