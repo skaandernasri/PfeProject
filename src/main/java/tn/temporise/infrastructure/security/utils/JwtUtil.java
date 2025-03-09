@@ -45,6 +45,10 @@ public class JwtUtil {
         Instant expiration = extractExpiration(token);
         return expiration != null && expiration.isBefore(Instant.now());
     }
+    public String extractProviderId(String token){
+        Jwt jwt = jwtDecoder.decode(token);
+        return jwt.getClaim("provider_id").toString();
+    }
 
     // Generate Access Token
     public String generateAccessToken(CustomUserDetails userDetails) {
@@ -60,10 +64,6 @@ public class JwtUtil {
     // Generate Refresh Token
     public String generateRefreshToken(CustomUserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("roles",userDetails.getAuthorities()
-                .stream()
-                .map(authority -> authority.getAuthority())
-                .collect(Collectors.toList()));
         claims.put("provider_id",userDetails.getProviderId());
         return createToken(claims, userDetails.getUsername(), refreshTokenExpiration);
     }
@@ -71,7 +71,6 @@ public class JwtUtil {
         var jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256).build();
         JwtClaimsSet claimsSet = JwtClaimsSet.builder()
                 .issuer("tempo-rise") // Set your issuer
-                .subject(subject)
                 .subject(subject)
                 .claims(claimsMap -> claimsMap.putAll(claims)) // Use a lambda to add claims
                 .issuedAt(Instant.now())

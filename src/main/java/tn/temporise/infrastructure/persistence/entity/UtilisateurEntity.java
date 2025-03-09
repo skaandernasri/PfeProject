@@ -5,27 +5,29 @@ import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
-
+@Entity
+@Table(name = "utilisateur")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class Utilisateur {
-
+public class UtilisateurEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long  id;
     private String nom;
     private String email;
 //    @Column(name="password")
     @Transient
     private String password;
-//    @OneToMany(mappedBy = "utilisateur")
-//    private Set<Panier> paniers;
-//    @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER) //it was EAGER
-//    @CollectionTable(name = "utilisateur_role", joinColumns = @JoinColumn(name = "user_id"))
-//    @Column(name ="role",nullable = false)
-//    @Enumerated(EnumType.STRING)
+    @OneToMany(mappedBy = "utilisateur")
+    private Set<PanierEntity> paniers;
+    @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER) //it was EAGER
+    @CollectionTable(name = "utilisateur_role", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name ="role",nullable = false)
+    @Enumerated(EnumType.STRING)
     private Set<Role> roles=new HashSet<>();
-    public Utilisateur(String email, String nom, Role role) {
+    public UtilisateurEntity(String email, String nom, Role role) {
         this.email = email;
         this.nom = nom;
         this.roles.add(role);
@@ -33,7 +35,7 @@ public class Utilisateur {
     }
 
 
-    public Utilisateur(String email, Role role) {
+    public UtilisateurEntity(String email, Role role) {
         this.email = email;
         this.roles.add(role);
     }

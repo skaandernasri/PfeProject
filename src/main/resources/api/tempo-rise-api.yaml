@@ -68,7 +68,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TokenResponse'
+                $ref: '#/components/schemas/Response'
         '400':
           description: Requête invalide (par exemple, mauvais format d'email ou mot de passe manquant)
           content:
@@ -106,7 +106,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TokenResponse'
+                $ref: '#/components/schemas/Response'
         '400':
           description: Requête invalide (par exemple, token Google manquant ou incorrect)
           content:
@@ -144,7 +144,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TokenResponse'
+                $ref: '#/components/schemas/Response'
         '400':
           description: Requête invalide (par exemple, token Facebook manquant ou incorrect)
           content:
@@ -202,7 +202,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TokenResponse'
+                $ref: '#/components/schemas/Response'
         '400':
           description: Requête invalide (par exemple, refreshToken manquant)
           content:
@@ -997,11 +997,11 @@ components:
     RefreshTokenRequest:
       type: object
       properties:
-        refreshToken:
+        accessToken:
           type: string
-          example: 'refresh_token_example'
+          example: 'accessToken_token_example'
       required:
-        - refreshToken
+        - accessToken
     TokenResponse:
       type: object
       properties:

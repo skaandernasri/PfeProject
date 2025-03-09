@@ -40,7 +40,7 @@
 		<spring-boot.version>3.2.1</spring-boot.version>
 		<reflections.version>0.10.2</reflections.version>
 
-		<springdoc-openapi-starter-webmvc.version>2.3.0</springdoc-openapi-starter-webmvc.version>
+		<springdoc-openapi-starter-webmvc.version>2.8.5</springdoc-openapi-starter-webmvc.version>
 
 		<lombok.version>1.18.30</lombok.version>
 		<mapstruct.version>1.5.5.Final</mapstruct.version>
@@ -50,7 +50,7 @@
 		<jackson-datatype-threetenbp.version>2.15.2</jackson-datatype-threetenbp.version>
 		<awaitility.version>3.1.6</awaitility.version>
 		<jackson-databind-nullable.version>0.2.6</jackson-databind-nullable.version>
-
+		<spring-boot-starter-data-jpa.version>3.4.3</spring-boot-starter-data-jpa.version>
 		<openapi-generator-maven-plugin.version>7.9.0</openapi-generator-maven-plugin.version>
 	</properties>
 
@@ -128,16 +128,17 @@
 			<artifactId>jakarta.persistence-api</artifactId>
 			<version>3.1.0</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-oauth2-client -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-oauth2-client</artifactId>
-			<version>3.4.3</version>
-		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-jpa -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
+			<version>${spring-boot-starter-data-jpa.version}</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-oauth2-client -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-client</artifactId>
 			<version>3.4.3</version>
 		</dependency>
 		<dependency>
@@ -149,7 +150,7 @@
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-core</artifactId>
 		</dependency>
-<!--		pour enlever le conflit entre la version 1.11.0 et 1.12.0 de common-text-->
+		<!--		pour enlever le conflit entre la version 1.11.0 et 1.12.0 de common-text-->
 		<dependency>
 			<groupId>com.opencsv</groupId>
 			<artifactId>opencsv</artifactId>
@@ -162,7 +163,7 @@
 			</exclusions>
 		</dependency>
 
-<!--		to configure the JwtEncoder and JwtDecoder beans-->
+		<!--		to configure the JwtEncoder and JwtDecoder beans-->
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-oauth2-resource-server</artifactId>
@@ -193,6 +194,21 @@
 			<version>${mockito-inline.version}</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.testcontainers/postgresql -->
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>1.20.6</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/io.rest-assured/rest-assured -->
+		<dependency>
+			<groupId>io.rest-assured</groupId>
+			<artifactId>rest-assured</artifactId>
+			<version>5.5.1</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -204,9 +220,9 @@
 				<configuration>
 					<source>${java.version}</source>
 					<target>${java.version}</target>
-<!--					generated source directory was here-->
+					<!--					generated source directory was here-->
 					<generatedSourcesDirectory>                     ${project.build.directory}/generated-sources/openapi                 </generatedSourcesDirectory>
-					<parameters>true</parameters>
+						<parameters>true</parameters>
 					<annotationProcessorPaths>
 						<path>
 							<groupId>org.projectlombok</groupId>

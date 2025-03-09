@@ -1,31 +1,13 @@
 package tn.temporise.domain.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import tn.temporise.infrastructure.persistence.entity.Produit;
+
+import tn.temporise.infrastructure.persistence.entity.ProduitEntity;
 
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class LigneCommande {
-
-    private Long id;
-
-
-    private Produit produit;
-
-    private int quantite;
-
-    private double prixTotal;
-
-
-    private Commande commande;
-
-
-
-}
-
+public record LigneCommande(
+        Long id,
+        ProduitEntity produit,
+        int quantite,
+        double prixTotal,
+        Commande commande
+) {}

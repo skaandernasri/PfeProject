@@ -1,13 +1,14 @@
 package tn.temporise.domain.port;
 
 
-import tn.temporise.infrastructure.persistence.entity.Authentification;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.jpa.repository.JpaRepository;
+import tn.temporise.infrastructure.persistence.entity.AuthentificationEntity;
 
 import java.util.Optional;
-public interface AuthRepo {
-    Optional<Authentification> findByUserEmail(String email);
-    Optional<Authentification> findByUserEmailAndProviderId(String email, String providerId);
-    Authentification save(Authentification authentification);
-    Optional<Authentification> findByToken (String token);
+public interface AuthRepo extends JpaRepository<AuthentificationEntity,Long> {
+    Optional<AuthentificationEntity> findByUserEmail(String email);
+    Optional<AuthentificationEntity> findByUserEmailAndProviderId(String email, String providerId);
+    Optional<AuthentificationEntity> findByToken (String token);
 }
 
