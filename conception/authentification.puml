@@ -1,0 +1,47 @@
+@startuml
+actor Utilisateur
+participant "Frontend (Navigateur)" as Browser
+participant "AuthController" as Auth
+participant "CustomUserDetailsService" as UserDetails
+participant "CustomOAuth2UserService" as OAuth2Service
+participant "Base de données (Utilisateurs)" as DB
+participant "Google" as Google
+
+== Authentification avec Email et Mot de Passe ==
+
+Utilisateur -> Browser : Saisir email et mot de passe
+Browser -> Auth : Envoyer les informations (email, password)
+Auth -> UserDetails : Appeler loadUserByUsername(email)
+UserDetails -> DB : Rechercher l'utilisateur par email
+DB -> UserDetails : Retourner l'utilisateur (ou null)
+alt Utilisateur trouvé
+    UserDetails -> Auth : Retourner UserDetails
+    Auth -> Browser : Authentification réussie
+    Browser -> Utilisateur : Rediriger vers la page d'accueil
+else Utilisateur non trouvé
+    UserDetails -> Auth : Lancer UsernameNotFoundException
+    Auth -> Browser : Retourner une erreur (401 Unauthorized)
+    Browser -> Utilisateur : Afficher un message d'erreur
+end
+
+== Authentification OAuth2 avec Google ==
+
+Utilisateur -> Browser : Cliquer sur "Se connecter avec Google"
+Browser -> Google : Rediriger vers Google pour l'authentification
+Google -> Utilisateur : Demander les informations de connexion Google
+Utilisateur -> Google : Saisir les informations Google
+Google -> Browser : Rediriger avec le code d'autorisation
+Browser -> Auth : Envoyer le code d'autorisation
+Auth -> OAuth2Service : Appeler loadUser() avec le code
+OAuth2Service -> Google : Récupérer les informations de l'utilisateur (email, etc.)
+Google -> OAuth2Service : Retourner les informations de l'utilisateur
+OAuth2Service -> DB : Vérifier si l'utilisateur existe
+alt Utilisateur trouvé
+    DB -> OAuth2Service : Retourner l'utilisateur
+else Utilisateur non trouvé
+    DB -> OAuth2Service : Créer un nouvel utilisateur
+end
+OAuth2Service -> Auth : Retourner OAuth2User
+Auth -> Browser : Authentification réussie
+Browser -> Utilisateur : Rediriger vers la page d'accueil
+@enduml

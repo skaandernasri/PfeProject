@@ -15,7 +15,7 @@ paths:
   /v1/auth/signup:
     post:
       summary: Inscription d'un nouvel utilisateur
-      operationId: signupUser
+      operationId: SignupUser
       tags:
         - Authentification
       requestBody:
@@ -23,37 +23,32 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  format: email
-                  example: user@example.com
-                motDePasse:
-                  type: string
-                  format: password
-                  example: 'MotDePasseSecure123!'
-                nom:
-                  type: string
-                  example: 'Jean Dupont'
-                roles:
-                  type: array
-                  items:
-                    type: string
-                    example: 'CLIENT'
-              required:
-                - email
-                - motDePasse
-                - nom
+              $ref: '#/components/schemas/SignupUserRequest'
       responses:
         '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
           description: Utilisateur créé avec succès
         '400':
           description: Requête invalide (par exemple, email déjà utilisé)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '409':
           description: Conflit (par exemple, utilisateur déjà existant)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '500':
           description: Erreur serveur interne
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
 
   /v1/auth/signin:
     post:
@@ -66,36 +61,32 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  format: email
-                  example: user@example.com
-                motDePasse:
-                  type: string
-                  format: password
-                  example: 'MotDePasseSecure123!'
-              required:
-                - email
-                - motDePasse
+              $ref: '#/components/schemas/SigninUserRequest'
       responses:
         '200':
           description: Connexion réussie, retourne un token d'accès
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-                    example: 'jwt_token_example'
+                $ref: '#/components/schemas/TokenResponse'
         '400':
           description: Requête invalide (par exemple, mauvais format d'email ou mot de passe manquant)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '401':
           description: Authentification échouée (email ou mot de passe incorrect)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '500':
           description: Erreur serveur interne
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
 
   /v1/auth/signin/google:
     post:
@@ -108,30 +99,32 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                idToken:
-                  type: string
-                  example: 'google_token_example'
-              required:
-                - idToken
+              $ref: '#/components/schemas/SigninGoogleRequest'
       responses:
         '200':
           description: Connexion réussie, retourne un token d'accès
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-                    example: 'jwt_token_google_example'
+                $ref: '#/components/schemas/TokenResponse'
         '400':
           description: Requête invalide (par exemple, token Google manquant ou incorrect)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '401':
           description: Authentification échouée (token Google invalide)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '500':
           description: Erreur serveur interne
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
 
   /v1/auth/signin/facebook:
     post:
@@ -144,30 +137,32 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                accessToken:
-                  type: string
-                  example: 'facebook_token_example'
-              required:
-                - accessToken
+              $ref: '#/components/schemas/SigninFacebookRequest'
       responses:
         '200':
           description: Connexion réussie, retourne un token d'accès
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-                    example: 'jwt_token_facebook_example'
+                $ref: '#/components/schemas/TokenResponse'
         '400':
           description: Requête invalide (par exemple, token Facebook manquant ou incorrect)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '401':
           description: Authentification échouée (token Facebook invalide)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '500':
           description: Erreur serveur interne
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
 
   /v1/auth/logout:
     post:
@@ -178,8 +173,16 @@ paths:
       responses:
         '200':
           description: Déconnexion réussie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '500':
           description: Erreur serveur interne
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
 
   /v1/auth/refresh:
     post:
@@ -192,30 +195,32 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                refreshToken:
-                  type: string
-                  example: 'refresh_token_example'
-              required:
-                - refreshToken
+              $ref: '#/components/schemas/RefreshTokenRequest'
       responses:
         '200':
           description: Token rafraîchi avec succès
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-                    example: 'new_jwt_token_example'
+                $ref: '#/components/schemas/TokenResponse'
         '400':
           description: Requête invalide (par exemple, refreshToken manquant)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '401':
           description: Le token de rafraîchissement est invalide ou expiré
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '500':
           description: Erreur serveur interne
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
 
   /v1/articles:
     get:
@@ -231,7 +236,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Article'
+                  $ref: '#/components/schemas/ArticleResponse'
     post:
       summary: Créer un nouvel article dans le blog
       operationId: createArticle
@@ -242,14 +247,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Article'
+              $ref: '#/components/schemas/ArticleRequest'
       responses:
         '201':
           description: Article créé
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Article'
+                $ref: '#/components/schemas/ArticleResponse'
 
   /v1/articles/{id}:
     get:
@@ -271,9 +276,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Article'
+                $ref: '#/components/schemas/ArticleResponse'
         '404':
           description: Article non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
     put:
       summary: Mettre à jour un article
       operationId: updateArticle
@@ -292,18 +301,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Article'
+              $ref: '#/components/schemas/ArticleRequest'
       responses:
         '200':
           description: Article mis à jour
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Article'
+                $ref: '#/components/schemas/ArticleResponse'
         '404':
           description: Article non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '500':
           description: Erreur serveur interne
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
     delete:
       summary: Supprimer un article du blog
       operationId: deleteArticle
@@ -320,10 +337,22 @@ paths:
       responses:
         '204':
           description: Article supprimé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '404':
           description: Article non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '500':
           description: Erreur serveur interne
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
 
   /v1/utilisateurs:
     get:
@@ -339,7 +368,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Utilisateur'
+                  $ref: '#/components/schemas/UserResponse'
     post:
       summary: Créer un nouvel utilisateur
       operationId: createUtilisateur
@@ -350,14 +379,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Utilisateur'
+              $ref: '#/components/schemas/UserRequest'
       responses:
         '201':
           description: Utilisateur créé
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Utilisateur'
+                $ref: '#/components/schemas/UserResponse'
 
   /v1/utilisateurs/{id}:
     get:
@@ -379,9 +408,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Utilisateur'
+                $ref: '#/components/schemas/UserResponse'
         '404':
           description: Utilisateur non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
     put:
       summary: Mettre à jour un utilisateur
       operationId: updateUtilisateur
@@ -400,18 +433,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Utilisateur'
+              $ref: '#/components/schemas/UserRequest'
       responses:
         '200':
           description: Utilisateur mis à jour
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Utilisateur'
+                $ref: '#/components/schemas/UserResponse'
         '404':
           description: Utilisateur non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '500':
           description: Erreur serveur interne
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
     delete:
       summary: Supprimer un utilisateur
       operationId: deleteUtilisateur
@@ -428,10 +469,22 @@ paths:
       responses:
         '204':
           description: Utilisateur supprimé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '404':
           description: Utilisateur non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '500':
           description: Erreur serveur interne
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
 
   /v1/commandes:
     get:
@@ -447,7 +500,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Commande'
+                  $ref: '#/components/schemas/CommandeResponse'
     post:
       summary: Créer une nouvelle commande
       operationId: createCommande
@@ -458,14 +511,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Commande'
+              $ref: '#/components/schemas/CommandeRequest'
       responses:
         '201':
           description: Commande créée
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Commande'
+                $ref: '#/components/schemas/CommandeResponse'
 
   /v1/commandes/{id}:
     get:
@@ -487,9 +540,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Commande'
+                $ref: '#/components/schemas/CommandeResponse'
         '404':
           description: Commande non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
     put:
       summary: Mettre à jour une commande
       operationId: updateCommande
@@ -508,18 +565,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Commande'
+              $ref: '#/components/schemas/CommandeRequest'
       responses:
         '200':
           description: Commande mise à jour
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Commande'
+                $ref: '#/components/schemas/CommandeResponse'
         '404':
           description: Commande non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '500':
           description: Erreur serveur interne
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
     delete:
       summary: Supprimer une commande
       operationId: deleteCommande
@@ -536,10 +601,22 @@ paths:
       responses:
         '204':
           description: Commande supprimée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '404':
           description: Commande non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '500':
           description: Erreur serveur interne
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
 
   /v1/paiements:
     get:
@@ -555,7 +632,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Paiement'
+                  $ref: '#/components/schemas/PaiementResponse'
     post:
       summary: Créer un nouveau paiement
       operationId: createPaiement
@@ -566,14 +643,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Paiement'
+              $ref: '#/components/schemas/PaiementRequest'
       responses:
         '201':
           description: Paiement créé
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Paiement'
+                $ref: '#/components/schemas/PaiementResponse'
 
   /v1/paiements/{id}:
     get:
@@ -595,9 +672,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Paiement'
+                $ref: '#/components/schemas/PaiementResponse'
         '404':
           description: Paiement non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
     put:
       summary: Mettre à jour un paiement
       operationId: updatePaiement
@@ -616,18 +697,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Paiement'
+              $ref: '#/components/schemas/PaiementRequest'
       responses:
         '200':
           description: Paiement mis à jour
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Paiement'
+                $ref: '#/components/schemas/PaiementResponse'
         '404':
           description: Paiement non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '500':
           description: Erreur serveur interne
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
     delete:
       summary: Supprimer un paiement
       operationId: deletePaiement
@@ -644,10 +733,22 @@ paths:
       responses:
         '204':
           description: Paiement supprimé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '404':
           description: Paiement non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '500':
           description: Erreur serveur interne
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
 
   /v1/paniers:
     get:
@@ -663,7 +764,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Panier'
+                  $ref: '#/components/schemas/PanierResponse'
     post:
       summary: Créer un nouveau panier
       operationId: createPanier
@@ -674,14 +775,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Panier'
+              $ref: '#/components/schemas/PanierRequest'
       responses:
         '201':
           description: Panier créé
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Panier'
+                $ref: '#/components/schemas/PanierResponse'
 
   /v1/paniers/{id}:
     get:
@@ -703,9 +804,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Panier'
+                $ref: '#/components/schemas/PanierResponse'
         '404':
           description: Panier non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
     put:
       summary: Mettre à jour un panier
       operationId: updatePanier
@@ -724,18 +829,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Panier'
+              $ref: '#/components/schemas/PanierRequest'
       responses:
         '200':
           description: Panier mis à jour
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Panier'
+                $ref: '#/components/schemas/PanierResponse'
         '404':
           description: Panier non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '500':
           description: Erreur serveur interne
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
     delete:
       summary: Supprimer un panier
       operationId: deletePanier
@@ -751,22 +864,44 @@ paths:
             format: int64
       responses:
         '204':
-          description: Panier supprimé
+          description: Panier non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '404':
           description: Panier non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
         '500':
           description: Erreur serveur interne
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
 
 components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://accounts.google.com/o/oauth2/auth
+          tokenUrl: https://oauth2.googleapis.com/token
+          scopes:
+            email: Access email
+            profile: Access profile information
   schemas:
-    Utilisateur:
+    SignupUserRequest:
       type: object
       properties:
         email:
           type: string
           format: email
-          example: 'user@example.com'
-        motDePasse:
+          example: user@example.com
+        password:
           type: string
           format: password
           example: 'MotDePasseSecure123!'
@@ -778,28 +913,125 @@ components:
           items:
             type: string
             example: 'CLIENT'
-
-    Token:
+      required:
+        - email
+        - password
+        - nom
+        - roles
+    UserRequest:
       type: object
       properties:
-        token:
+        email:
           type: string
-          example: 'jwt_token_example'
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: 'MotDePasseSecure123!'
+        nom:
+          type: string
+          example: 'Jean Dupont'
+        roles:
+          type: array
+          items:
+            type: string
+            example: 'CLIENT'
+      required:
+        - email
+        - password
+        - nom
+        - roles
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        nom:
+          type: string
+          example: 'Jean Dupont'
+        roles:
+          type: array
+          items:
+            type: string
+            example: 'CLIENT'
+
+    SigninUserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: 'MotDePasseSecure123!'
+      required:
+        - email
+        - password
+
+    SigninGoogleRequest:
+      type: object
+      properties:
+        idToken:
+          type: string
+          example: 'google_token_example'
+      required:
+        - idToken
+
+    SigninFacebookRequest:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: 'facebook_token_example'
+      required:
+        - accessToken
+    RefreshTokenRequest:
+      type: object
+      properties:
         refreshToken:
           type: string
           example: 'refresh_token_example'
-
-    Error:
+      required:
+        - refreshToken
+    TokenResponse:
       type: object
       properties:
-        message:
+        Token:
           type: string
-          example: 'Email déjà utilisé'
-        code:
-          type: integer
-          example: 400
+          example: 'token_example'
+        RefreshToken:
+          type: string
+          example: 'RefreshTokenExample'
+      required:
+        - Token
 
-    Article:
+    ArticleRequest:
+      type: object
+      properties:
+        titre:
+          type: string
+          description: Le titre de l'article
+        contenu:
+          type: string
+          description: Le contenu de l'article
+        auteur:
+          type: string
+          description: L'auteur de l'article
+      required:
+        - titre
+        - contenu
+        - auteur
+
+    ArticleResponse:
       type: object
       properties:
         id:
@@ -815,12 +1047,27 @@ components:
         auteur:
           type: string
           description: L'auteur de l'article
-      required:
-        - titre
-        - contenu
-        - auteur
 
-    Commande:
+    CommandeRequest:
+      type: object
+      properties:
+        utilisateurId:
+          type: integer
+          format: int64
+          description: L'ID de l'utilisateur ayant passé la commande
+        dateCommande:
+          type: string
+          format: date-time
+          description: La date de la commande
+        statut:
+          type: string
+          description: Le statut de la commande
+      required:
+        - utilisateurId
+        - dateCommande
+        - statut
+
+    CommandeResponse:
       type: object
       properties:
         id:
@@ -838,12 +1085,27 @@ components:
         statut:
           type: string
           description: Le statut de la commande
-      required:
-        - utilisateurId
-        - dateCommande
-        - statut
 
-    Paiement:
+    PaiementRequest:
+      type: object
+      properties:
+        commandeId:
+          type: integer
+          format: int64
+          description: L'ID de la commande associée
+        montant:
+          type: number
+          format: float
+          description: Le montant du paiement
+        methode:
+          type: string
+          description: La méthode de paiement utilisée
+      required:
+        - commandeId
+        - montant
+        - methode
+
+    PaiementResponse:
       type: object
       properties:
         id:
@@ -861,12 +1123,31 @@ components:
         methode:
           type: string
           description: La méthode de paiement utilisée
-      required:
-        - commandeId
-        - montant
-        - methode
 
-    Panier:
+    PanierRequest:
+      type: object
+      properties:
+        utilisateurId:
+          type: integer
+          format: int64
+          description: L'ID de l'utilisateur propriétaire du panier
+        articles:
+          type: array
+          items:
+            type: object
+            properties:
+              articleId:
+                type: integer
+                format: int64
+                description: L'ID de l'article dans le panier
+              quantite:
+                type: integer
+                description: La quantité de l'article dans le panier
+      required:
+        - utilisateurId
+        - articles
+
+    PanierResponse:
       type: object
       properties:
         id:
@@ -889,10 +1170,23 @@ components:
               quantite:
                 type: integer
                 description: La quantité de l'article dans le panier
-      required:
-        - utilisateurId
-        - articles
-
+    Response:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Le code d'erreur
+          example: "INVALID_REQUEST"
+        message:
+          type: string
+          description: Un message d'erreur détaillé
+          example: "La requête est invalide."
+        details:
+          type: array
+          items:
+            type: string
+          description: Détails supplémentaires sur l'erreur
+          example: [ "Le champ 'email' est requis." ]
 tags:
   - name: Authentification
     description: Gestion de l'authentification des utilisateurs
@@ -900,7 +1194,7 @@ tags:
     description: Gestion des articles du blog
   - name: Utilisateurs
     description: Gestion des utilisateurs
-  - name: Commandes
+  - name: Commande
     description: Gestion des commandes
   - name: Paiements
     description: Gestion des paiements

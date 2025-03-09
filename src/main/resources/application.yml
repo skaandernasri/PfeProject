@@ -2,24 +2,38 @@ spring:
   servlet:
     context-path: "/tempo-rise/api"
   application:
-     name: tempo-rise-api
+    name: tempo-rise-api
   threads:
     virtual:
       enabled: true
   server:
     shutdown: graceful
-  liquibase:
-    change-log: "classpath:/liquibase/db/changelog/master.yaml"
   main:
     allow-bean-definition-overriding: true
-  mvc:
-    pathmatch:
-      matching-strategy: ant_path_matcher
-    favicon:
-      enabled: false
-  lifecycle:
-    timeout-per-shutdown-phase: 15s
-
+    mvc:
+      pathmatch:
+        matching-strategy: ant_path_matcher
+      favicon:
+        enabled: false
+    lifecycle:
+      timeout-per-shutdown-phase: 15s
+  datasource:
+    url: jdbc:postgresql://localhost:5432/temporise
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    change-log: db/changelog/master.yaml
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: "1075010946855-ort33tcintve2dbv5i2pt009ikv7oh90.apps.googleusercontent.com"
+            client-secret: "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"
+            scope:
+              - email
+              - profile
 management:
   endpoints:
     web:
@@ -38,20 +52,35 @@ management:
       probes:
         enabled: true
       show-details: always
-
 server:
   port: 8080
   error:
     include-message: always
-springdoc:
-  swagger-ui:
-    operationsSorter: alpha
-    tagsSorter: alpha
-    tryItOutEnabled: true
-    use-root-path: true
-    enabled: true
-  api-docs:
-    enabled: true
+  springdoc:
+    swagger-ui:
+      operationsSorter: alpha
+      tagsSorter: alpha
+      tryItOutEnabled: true
+      use-root-path: true
+      enabled: true
+    api-docs:
+      enabled: true
+#  jpa:
+#    database-platform: org.hibernate.dialect.PostgreSQLDialect
+#    show-sql: true
+
+
+
+
+jwt:
+  secret:
+    key: DnpYmWn9jCGE2DY5NUqIDtt44N3fFO1EfhgwL9c3hQ4=
+  access:
+    token:
+      expiration: 3600000 # 1 hour
+  refresh:
+    token:
+      expiration: 86400000 # 24 hours
 
 ## Api Infos ###########################################
 api:
@@ -67,4 +96,8 @@ api:
     basePackage: tn.temporise.api
 
 logging:
+  level:
+    org:
+      springframework:
+        security: TRACE
   config: "classpath:logback-spring.xml"

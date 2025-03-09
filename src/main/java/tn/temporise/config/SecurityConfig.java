@@ -1,0 +1,92 @@
+package tn.temporise.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import tn.temporise.infrastructure.security.utils.JwtRequestFilter;
+import tn.temporise.application.service.CustomUserDetailsService;
+
+import java.io.IOException;
+
+@Configuration
+public class SecurityConfig {
+
+    private final CustomUserDetailsService userDetailsService;
+    private final JwtRequestFilter jwtRequestFilter;
+    private final JwtConfig jwtConfig;
+
+    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtRequestFilter jwtRequestFilter,JwtConfig jwtConfig) {
+        this.userDetailsService = userDetailsService;
+        this.jwtRequestFilter = jwtRequestFilter;
+        this.jwtConfig=jwtConfig;
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/oauth2/**",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/v3/api-docs.yaml",
+                                "/swagger-ui.html",
+                                "/tempo-rise/api/v1/auth/refresh","/**" // added refresh token endpoint
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.POST,"/tempo-rise/api/v1/auth/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> {
+                                    try {
+                                        jwt
+                                                .decoder(jwtConfig.jwtDecoder(jwtConfig.rsaPublicKey()));
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                }
+                        ))
+                .oauth2Login(oauth2 -> oauth2
+                        .defaultSuccessUrl("/swagger-ui/index.html") // example redirect after login success
+                        .failureUrl("/login?error=true")
+                )
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                )
+//                .headers().frameOptions().disable()
+//                .headers().xssProtection().disable()
+                .authenticationProvider(authenticationProvider()) // Make sure it's correctly implemented
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class); // Custom filter
+
+        return http.build();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
+}
