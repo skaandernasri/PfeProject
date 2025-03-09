@@ -3,9 +3,9 @@ package tn.temporise.tempo_rise_api;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 
+import tn.temporise.application.service.CustomUserDetailsService;
+import tn.temporise.domain.model.CustomUserDetails;
 import tn.temporise.infrastructure.security.utils.JwtUtil;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 
@@ -21,11 +21,11 @@ public class JwtUtilTest {
     private JwtUtil jwtUtil;
 
     @Autowired
-    private UserDetailsService userDetailsService;
+    private CustomUserDetailsService userDetailsService;
 
     @Test
     public void testGenerateAccessToken() {
-        UserDetails userDetails = userDetailsService.loadUserByUsername("user@example.com");
+        CustomUserDetails userDetails = userDetailsService.getUserDetails("user@example.com");
         String token = jwtUtil.generateAccessToken(userDetails);
         assertNotNull(token);
         System.out.println("Generated Token: " + token);
