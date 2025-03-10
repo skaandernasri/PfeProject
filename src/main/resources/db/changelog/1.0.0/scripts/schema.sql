@@ -88,6 +88,7 @@ CREATE TABLE Panier_Produit (
     FOREIGN KEY (panier_id) REFERENCES Panier(id) ON DELETE CASCADE,
     FOREIGN KEY (produit_id) REFERENCES produit(id) ON DELETE CASCADE
 );
+
 -- Table: avis (already defined in previous schema)
 CREATE TABLE IF NOT EXISTS avis (
     id BIGSERIAL PRIMARY KEY,
@@ -156,6 +157,14 @@ CREATE TABLE IF NOT EXISTS historique_commande (
     date_commande TIMESTAMP NOT NULL,
     statut VARCHAR(50) NOT NULL,
     utilisateur_id BIGINT NOT NULL REFERENCES utilisateur(id) ON DELETE CASCADE
+);
+-- Table: historiqueCommande_produit
+CREATE TABLE historiqueCommande_produit (
+    historiqueCommande_id BIGINT NOT NULL,
+    produit_id BIGINT NOT NULL,
+    PRIMARY KEY (historiqueCommande_id, produit_id),
+    FOREIGN KEY (historiqueCommande_id) REFERENCES historique_commande(id) ON DELETE CASCADE,
+    FOREIGN KEY (produit_id) REFERENCES produit(id) ON DELETE CASCADE
 );
 
 -- Table: retour_produit

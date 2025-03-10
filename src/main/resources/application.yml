@@ -65,13 +65,9 @@ server:
       enabled: true
     api-docs:
       enabled: true
-#  jpa:
-#    database-platform: org.hibernate.dialect.PostgreSQLDialect
-#    show-sql: true
-
-
-
-
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
 jwt:
   secret:
     key: DnpYmWn9jCGE2DY5NUqIDtt44N3fFO1EfhgwL9c3hQ4=
@@ -80,8 +76,9 @@ jwt:
       expiration: 3600000 # 1 hour
   refresh:
     token:
-      expiration: 86400000 # 24 hours
-
+      expiration: 2592000000 # 24 hours
+cookie:
+  expiration: 604800
 ## Api Infos ###########################################
 api:
   infos:

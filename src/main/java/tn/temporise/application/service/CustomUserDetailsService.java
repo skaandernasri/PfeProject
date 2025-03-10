@@ -1,48 +1,52 @@
 package tn.temporise.application.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+import tn.temporise.application.exception.BadCredentialsException;
 import tn.temporise.application.exception.InternalServerErrorException;
 import tn.temporise.application.exception.NonLocalProviderException;
 import tn.temporise.application.exception.UsernameNotFoundException;
 import tn.temporise.domain.model.CustomUserDetails;
-import tn.temporise.infrastructure.persistence.entity.Authentification;
-import tn.temporise.infrastructure.persistence.entity.Utilisateur;
+import tn.temporise.domain.model.SigninUserRequest;
+import tn.temporise.domain.model.TokenResponse;
+import tn.temporise.infrastructure.persistence.entity.AuthentificationEntity;
+import tn.temporise.infrastructure.persistence.entity.UtilisateurEntity;
 import tn.temporise.domain.port.AuthRepo;
 import tn.temporise.domain.port.UserRepo;
+import tn.temporise.infrastructure.security.utils.JwtUtil;
 
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
 @Slf4j
 @Service
+@RequiredArgsConstructor
+
 public class CustomUserDetailsService implements UserDetailsService {
-
     private final UserRepo userRepo;
-    private final AuthRepo authentificationRepo;
-    private final RegistrationService registrationService;
-
+    private final AuthRepo authenticationRepo;
     @Autowired
-    public CustomUserDetailsService(@Lazy AuthRepo authentificationRepo, UserRepo userRepo, @Lazy RegistrationService registrationService) {
-        this.authentificationRepo = authentificationRepo;
-        this.userRepo = userRepo;
-        this.registrationService = registrationService;
-    }
+    private final JwtUtil jwtUtil;
+
+
 
     @Override
-    public CustomUserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    public CustomUserDetails loadUserByUsername(String email)  {
         try {
             // Find the user by email
-            Utilisateur user = userRepo.findByEmail(email)
+            UtilisateurEntity user = userRepo.findByEmail(email)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email,"404"));
 
             // Check if the user has a non-local provider (e.g., Google or Facebook)
-            Authentification auth = authentificationRepo.findByUserEmail(user.getEmail())
+            AuthentificationEntity auth = authenticationRepo.findByUserEmail(user.getEmail())
                     .orElseThrow(() -> new UsernameNotFoundException("Authentication method not found for user: " + email,"404"));
 
             if (!auth.getProviderId().equals("0")) {
@@ -65,14 +69,14 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
     }
 
-    public CustomUserDetails getUserDetails(String email) throws UsernameNotFoundException {
+    public CustomUserDetails getUserDetails(String email,String provider_id) throws UsernameNotFoundException {
         try {
             // Find the user by email
-            Utilisateur user = userRepo.findByEmail(email)
+            UtilisateurEntity user = userRepo.findByEmail(email)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email,"404"));
 
             // Check the authentication method
-            Authentification auth = authentificationRepo.findByUserEmail(user.getEmail())
+            AuthentificationEntity auth = authenticationRepo.findByUserEmailAndProviderId(user.getEmail(),provider_id)
                     .orElseThrow(() -> new UsernameNotFoundException("Authentication method not found for user: " + email,"404"));
 
             String providerId = auth.getProviderId(); // Retrieve providerId
@@ -90,32 +94,46 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
     }
 
-    public void saveToken(String email, String token, String providerId) {
+    public TokenResponse signinUser(SigninUserRequest signinUserRequest,AuthenticationManager authenticationManager,TokenService tokenService) {
         try {
-            Optional<Authentification> authentification = authentificationRepo.findByUserEmailAndProviderId(email, providerId);
-            if (authentification.isPresent()) {
-                authentification.get().setToken(token);
-                authentificationRepo.save(authentification.get());
+            // Authenticate the user using the provided email and password
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(signinUserRequest.getEmail(), signinUserRequest.getPassword())
+            );
+
+            // Load user details
+            CustomUserDetails userDetails = loadUserByUsername(signinUserRequest.getEmail());
+
+            // Generate the access token and refresh token
+            String token = jwtUtil.generateAccessToken(userDetails);
+            String refreshToken = jwtUtil.generateRefreshToken(userDetails);
+
+            // Prepare the response object
+            TokenResponse response = new TokenResponse();
+            response.setToken(token);
+            //response.setRefreshToken(refreshToken);  // Assuming you want to send the refresh token to the client
+
+            // Retrieve the authentication record from the database
+            Optional<AuthentificationEntity> authOpt = authenticationRepo.findByUserEmailAndProviderId(userDetails.getUsername(), userDetails.getProviderId());
+
+            // If the user exists and the token is empty, save the refresh token to the database
+            if (authOpt.isPresent()) {
+                AuthentificationEntity auth = authOpt.get();
+                if (auth.getToken() == null || auth.getToken().isEmpty()) {
+                    tokenService.saveToken(userDetails.getUsername(), refreshToken, userDetails.getProviderId());
+                }
+            } else {
+                // If user is not found in the database, you can save the token or handle this case differently
+                tokenService.saveToken(userDetails.getUsername(), refreshToken, userDetails.getProviderId());
             }
+
+            return response;
+
+        } catch (AuthenticationException e) {
+            throw new BadCredentialsException(e.getMessage(), "6000");
         } catch (InternalServerErrorException e) {
-            log.error("Error saving token: ", e);
-            throw new InternalServerErrorException("Failed to save token","500");
+            throw new InternalServerErrorException(e.getMessage(), "6000");
         }
     }
 
-    public void removeToken(CustomUserDetails customUserDetails) {
-        try {
-            String providerId = customUserDetails.getProviderId();
-            String email = customUserDetails.getUsername();
-            Optional<Authentification> authentification = authentificationRepo.findByUserEmailAndProviderId(email, providerId);
-            if (authentification.isPresent()) {
-                authentification.get().setToken(null);
-                authentificationRepo.save(authentification.get());
-            }
-            log.info("Token removed for user: " + email);
-        } catch (InternalServerErrorException e) {
-            log.error("Error removing token: ", e);
-            throw new InternalServerErrorException("Failed to remove token","500");
-        }
-    }
 }

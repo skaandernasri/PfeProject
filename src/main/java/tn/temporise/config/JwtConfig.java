@@ -15,6 +15,8 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import tn.temporise.application.exception.LoadKeyException;
+
 import java.io.IOException;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPrivateKey;
@@ -44,7 +46,7 @@ public class JwtConfig {
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             return (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to load private key", e);
+            throw new LoadKeyException(e.getMessage(), "300");
         }
     }
 
@@ -61,7 +63,7 @@ public class JwtConfig {
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             return (RSAPublicKey) keyFactory.generatePublic(keySpec);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to load public key", e);
+            throw new LoadKeyException(e.getMessage(), "300");
         }
     }
 

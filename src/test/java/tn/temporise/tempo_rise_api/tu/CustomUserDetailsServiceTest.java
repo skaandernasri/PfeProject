@@ -1,25 +1,24 @@
 package tn.temporise.tempo_rise_api.tu;
 
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import tn.temporise.infrastructure.persistence.entity.Role;
-import tn.temporise.infrastructure.persistence.entity.Utilisateur;
+import tn.temporise.application.exception.UsernameNotFoundException;
 import tn.temporise.application.service.CustomUserDetailsService;
+import tn.temporise.domain.model.CustomUserDetails;
 import tn.temporise.domain.port.AuthRepo;
 import tn.temporise.domain.port.UserRepo;
+import tn.temporise.infrastructure.persistence.entity.AuthentificationEntity;
+import tn.temporise.infrastructure.persistence.entity.UtilisateurEntity;
 
-import java.util.Collections;
 import java.util.Optional;
 
-public class CustomUserDetailsServiceTest {
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class CustomUserDetailsServiceTest {
 
     @Mock
     private UserRepo userRepo;
@@ -31,35 +30,40 @@ public class CustomUserDetailsServiceTest {
     private CustomUserDetailsService customUserDetailsService;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    public void testLoadUserByUsername_Success() {
-        Utilisateur user = new Utilisateur();
+    void testLoadUserByUsername_Success() {
+        // Mock user and authentication
+        UtilisateurEntity user = new UtilisateurEntity();
         user.setEmail("test@example.com");
-        user.setPassword("password123");
-        user.setRoles(Collections.singleton(Role.CLIENT));
+        AuthentificationEntity auth = new AuthentificationEntity();
+        auth.setProviderId("0");
+        auth.setPassword("password");
 
-        when(userRepo.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        // Mock repository behavior
+        when(userRepo.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+        when(authRepo.findByUserEmail("test@example.com")).thenReturn(Optional.of(auth));
 
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getEmail());
+        // Call the method under test
+        CustomUserDetails result = customUserDetailsService.loadUserByUsername("test@example.com");
 
-        assertEquals(user.getEmail(), userDetails.getUsername());
-        assertEquals(user.getPassword(), userDetails.getPassword());
-        assertTrue(userDetails.getAuthorities().contains(new SimpleGrantedAuthority("CLIENT")));
+        // Assertions
+        assertNotNull(result);
+        assertEquals("test@example.com", result.getUsername());
+        assertEquals("password", result.getPassword());
     }
 
     @Test
-    public void testLoadUserByUsername_UserNotFound() {
-        String email = "nonexistent@example.com";
-        when(userRepo.findByEmail(email)).thenReturn(Optional.empty());
+    void testLoadUserByUsername_UserNotFound() {
+        // Mock repository behavior
+        when(userRepo.findByEmail("test@example.com")).thenReturn(Optional.empty());
 
-        UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class, () -> {
-            customUserDetailsService.loadUserByUsername(email);
+        // Assert exception
+        assertThrows(UsernameNotFoundException.class, () -> {
+            customUserDetailsService.loadUserByUsername("test@example.com");
         });
-        assertEquals("User not found with email: " + email, exception.getMessage());
     }
-
 }

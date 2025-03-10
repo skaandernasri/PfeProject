@@ -1,33 +1,28 @@
 package tn.temporise.infrastructure.persistence.entity;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
+@Table(name = "authentification")
+@Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Authentification {
+public class AuthentificationEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String password;
     private String providerId;
     private String token;
+    @Enumerated(EnumType.STRING)
     private TypeAuthentification type;
-    private Utilisateur user; // Just a reference without @ManyToOne
-
-    public Authentification(String password, TypeAuthentification type, Utilisateur user,String providerId) {
-        this.password = password;
-        this.type = type;
-        this.user = user;
-        this.providerId=providerId;
-    }
-    public Authentification(Utilisateur user,String providerId, TypeAuthentification type) {
-        this.providerId = providerId;
-        this.type = type;
-        this.user = user;
-    }
+    @ManyToOne()
+    @JoinColumn(name = "user_id", nullable = false)
+    private UtilisateurEntity user; // Just a reference without @ManyToOne
 
     @Override
     public String toString() {

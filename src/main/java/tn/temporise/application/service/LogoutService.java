@@ -1,8 +1,10 @@
 package tn.temporise.application.service;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -12,48 +14,60 @@ import org.springframework.stereotype.Service;
 import tn.temporise.application.exception.BadRequestException;
 import tn.temporise.application.exception.LogoutException;
 import tn.temporise.application.exception.UnauthorizedException;
-import tn.temporise.domain.model.CustomUserDetails;
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class LogoutService {
 
     @Autowired
     private CustomUserDetailsService userDetailsService;
+    @Autowired
+    private TokenService tokenService;
 
-    @Transactional
     public void logout(HttpServletRequest request, HttpServletResponse response) {
         try {
-            // Get the current authentication context
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
             if (authentication != null && authentication.isAuthenticated()) {
-                // Extract the username or email from the authentication object
-                String username = authentication.getName();
-                CustomUserDetails customUserDetails = userDetailsService.getUserDetails(username);
-
-                // Logout the user by clearing their authentication info from the SecurityContext
                 new SecurityContextLogoutHandler().logout(request, response, authentication);
+                SecurityContextHolder.clearContext();
+                log.info("---------------------Context cleared");
+                // Get the JWT token from the cookie
+                Cookie[] cookies = request.getCookies();
+                String token = null;
 
-                // Get the Authorization header from the request to retrieve the JWT token
-                String token = request.getHeader("Authorization");
-
-                // Check if the token is in "Bearer <token>" format, then remove "Bearer " prefix
-                if (token != null && token.startsWith("Bearer ")) {
-                    token = token.substring(7); // Extract the actual token
-                } else {
-                    throw new BadRequestException("Invalid token format","4000");
+                if (cookies != null) {
+                    for (Cookie cookie : cookies) {
+                        if ("jwt".equals(cookie.getName())) { // Replace "jwt" with the name of your cookie
+                            token = cookie.getValue();
+                            break;
+                        }
+                    }
                 }
 
-                // Remove the token from the database
-                userDetailsService.removeToken(customUserDetails);
+                if (token != null && !token.isEmpty()) {
+                    log.info("JWT Token found in cookie: " + token);
 
-                log.info("User logged out successfully: " + username);
+                    Cookie jwtCookie = new Cookie("jwt", null);
+                    jwtCookie.setHttpOnly(true);
+                    jwtCookie.setSecure(true);
+                    jwtCookie.setPath("/");
+                    jwtCookie.setMaxAge(0);
+                    response.addCookie(jwtCookie);
+                    log.info("still cookie? "+jwtCookie.getName() );
+                } else {
+                    log.error("JWT Token not found in cookies");
+                    throw new BadRequestException("JWT token not found in cookies", "4000");
+                }
+
+                log.info("User logged out successfully: ");
             } else {
-                throw new UnauthorizedException("User is not authenticated","401");
+                throw new UnauthorizedException("User is not authenticated", "401");
             }
         } catch (Exception e) {
             log.error("Error during logout: ", e);
-            throw new LogoutException("Failed to logout user","5000");
+            throw new LogoutException(e.getMessage(), "5000");
         }
     }
+
 }

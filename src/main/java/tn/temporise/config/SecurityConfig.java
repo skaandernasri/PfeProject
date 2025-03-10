@@ -1,7 +1,10 @@
 package tn.temporise.config;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -17,19 +20,19 @@ import tn.temporise.infrastructure.security.utils.JwtRequestFilter;
 import tn.temporise.application.service.CustomUserDetailsService;
 
 import java.io.IOException;
-
+@RequiredArgsConstructor
 @Configuration
 public class SecurityConfig {
-
+    @Autowired
+    @Lazy
     private final CustomUserDetailsService userDetailsService;
+    @Autowired
+    @Lazy
     private final JwtRequestFilter jwtRequestFilter;
+    @Autowired
+    @Lazy
     private final JwtConfig jwtConfig;
 
-    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtRequestFilter jwtRequestFilter,JwtConfig jwtConfig) {
-        this.userDetailsService = userDetailsService;
-        this.jwtRequestFilter = jwtRequestFilter;
-        this.jwtConfig=jwtConfig;
-    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -44,6 +47,7 @@ public class SecurityConfig {
                                 "/tempo-rise/api/v1/auth/refresh","/**" // added refresh token endpoint
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST,"/tempo-rise/api/v1/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/tempo-rise/api/v1/auth/refresh").authenticated()
                         .anyRequest().authenticated()
                 )
 
@@ -64,8 +68,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )
-//                .headers().frameOptions().disable()
-//                .headers().xssProtection().disable()
+
                 .authenticationProvider(authenticationProvider()) // Make sure it's correctly implemented
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class); // Custom filter
 
@@ -82,11 +85,12 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-
+    @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
+
 }
