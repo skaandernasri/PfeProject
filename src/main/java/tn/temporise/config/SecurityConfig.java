@@ -39,15 +39,10 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/oauth2/**",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/v3/api-docs.yaml",
-                                "/swagger-ui.html",
-                                "/tempo-rise/api/v1/auth/refresh","/**" // added refresh token endpoint
+                                "/**"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.POST,"/tempo-rise/api/v1/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/tempo-rise/api/v1/auth/refresh").authenticated()
+                        //.requestMatchers(HttpMethod.POST,"/tempo-rise/api/v1/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/v1/auth/refresh").authenticated()
                         .anyRequest().authenticated()
                 )
 
@@ -62,11 +57,12 @@ public class SecurityConfig {
                                 }
                         ))
                 .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/v1/auth/signin")
                         .defaultSuccessUrl("/swagger-ui/index.html") // example redirect after login success
                         .failureUrl("/login?error=true")
                 )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )
 
                 .authenticationProvider(authenticationProvider()) // Make sure it's correctly implemented

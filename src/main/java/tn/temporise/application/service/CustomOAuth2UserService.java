@@ -12,7 +12,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import tn.temporise.application.exception.BadRequestException;
-import tn.temporise.application.exception.UnauthorizedException;
+import tn.temporise.application.exception.GoogleException;
 import tn.temporise.domain.model.CustomUserDetails;
 import tn.temporise.domain.model.TokenResponse;
 import tn.temporise.domain.port.AuthRepo;
@@ -40,6 +40,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private TokenService tokenService;
     @Autowired
     private JwtUtil jwtUtil;
+
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         try {
@@ -57,7 +58,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                         UtilisateurEntity newUser = new UtilisateurEntity();
                         newUser.setEmail(email);
                         newUser.setRoles(Collections.singleton(Role.CLIENT)); // Assign a default role
-                          return userRepo.save(newUser); // Save the new user to the database
+                        return userRepo.save(newUser); // Save the new user to the database
                     });
 
             // Check if the user already has an authentication record for this provider
@@ -68,16 +69,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 auth.setUser(user); // Link the authentication to the user
                 auth.setProviderId("1"); // Google provider ID
                 auth.setType(TypeAuthentification.GOOGLE);
-                auth.setToken(jwtUtil.generateRefreshToken(new CustomUserDetails(email,"1"))); // Save the Google ID token
+                auth.setRefreshToken(jwtUtil.generateRefreshToken(new CustomUserDetails(email, "1"))); // Save the Google ID token
                 authRepo.save(auth); // Save the authentication entry to the database
             }
             // Return the OAuth2 user details
             return oauth2User;
         } catch (OAuth2AuthenticationException e) {
             log.error("Error during OAuth2 user loading: ", e);
-            throw new OAuth2AuthenticationException("Failed to load OAuth2 user");
+            throw new OAuth2AuthenticationException(e.getMessage());
         }
     }
+
     public TokenResponse signinGoogle(String idToken) {
         if (idToken == null || idToken.isEmpty()) {
             throw new BadRequestException("Token Google manquant", "400");
@@ -87,16 +89,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             JWT jwt = JWTParser.parse(idToken);
             JWTClaimsSet claimsSet = jwt.getJWTClaimsSet();
             String email = claimsSet.getStringClaim("email");
-            CustomUserDetails userDetails = userDetailsService.getUserDetails(email,"1");
+            CustomUserDetails userDetails = userDetailsService.getUserDetails(email, "1");
             String accessToken = jwtUtil.generateAccessToken(userDetails);
 
             TokenResponse token = new TokenResponse();
             token.setToken(accessToken);
             return token;
-        } catch (ParseException e) {
-            throw new UnauthorizedException("Échec de l'authentification Google", "401");
-        } catch (Exception e) {
-            throw new UnauthorizedException("Unexpected error during Google sign-in", "401");
+        } catch (GoogleException | ParseException e) {
+            throw new GoogleException("Échec de l'authentification Google");
         }
     }
 }

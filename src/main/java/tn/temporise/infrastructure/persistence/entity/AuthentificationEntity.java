@@ -17,7 +17,7 @@ public class AuthentificationEntity {
     private Long id;
     private String password;
     private String providerId;
-    private String token;
+    private String refreshToken;
     @Enumerated(EnumType.STRING)
     private TypeAuthentification type;
     @ManyToOne()

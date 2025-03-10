@@ -19,6 +19,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    @ExceptionHandler(PasswordException.class)
+    public ResponseEntity<Response> handelPasswordException(PasswordException ex) {
+        Response response = new Response();
+        response.setMessage(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<Response> handleUnauthorizedException(UnauthorizedException ex) {
         Response response = new Response();

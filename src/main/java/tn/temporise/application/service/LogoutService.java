@@ -3,7 +3,6 @@ package tn.temporise.application.service;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,15 +13,17 @@ import org.springframework.stereotype.Service;
 import tn.temporise.application.exception.BadRequestException;
 import tn.temporise.application.exception.LogoutException;
 import tn.temporise.application.exception.UnauthorizedException;
+import tn.temporise.domain.model.CustomUserDetails;
+import tn.temporise.infrastructure.security.utils.JwtRequestFilter;
+import tn.temporise.infrastructure.security.utils.JwtUtil;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class LogoutService {
-
-    @Autowired
-    private CustomUserDetailsService userDetailsService;
-    @Autowired
-    private TokenService tokenService;
+    private final TokenService tokenService;
+    private final JwtUtil jwtUtil;
+    private final JwtRequestFilter jwtRequestFilter;
 
     public void logout(HttpServletRequest request, HttpServletResponse response) {
         try {
@@ -47,19 +48,13 @@ public class LogoutService {
 
                 if (token != null && !token.isEmpty()) {
                     log.info("JWT Token found in cookie: " + token);
-
-                    Cookie jwtCookie = new Cookie("jwt", null);
-                    jwtCookie.setHttpOnly(true);
-                    jwtCookie.setSecure(true);
-                    jwtCookie.setPath("/");
-                    jwtCookie.setMaxAge(0);
-                    response.addCookie(jwtCookie);
-                    log.info("still cookie? "+jwtCookie.getName() );
+                    jwtRequestFilter.removeJwtCookie(response);
+                    log.info("still cookie? " );
                 } else {
                     log.error("JWT Token not found in cookies");
                     throw new BadRequestException("JWT token not found in cookies", "4000");
                 }
-
+                tokenService.removeToken(new CustomUserDetails(jwtUtil.extractEmail(token),jwtUtil.extractProviderId(token)));
                 log.info("User logged out successfully: ");
             } else {
                 throw new UnauthorizedException("User is not authenticated", "401");

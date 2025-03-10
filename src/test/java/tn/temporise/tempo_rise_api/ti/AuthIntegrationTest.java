@@ -1,71 +1,46 @@
 package tn.temporise.tempo_rise_api.ti;
 
 import io.restassured.RestAssured;
-import jakarta.transaction.Transactional;
+import io.restassured.http.ContentType;
+import io.restassured.response.ValidatableResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import tn.temporise.domain.model.Response;
-import tn.temporise.domain.model.TokenResponse;
+import tn.temporise.domain.port.AuthRepo;
 import tn.temporise.domain.port.UserRepo;
+import tn.temporise.infrastructure.persistence.entity.AuthentificationEntity;
+import tn.temporise.infrastructure.persistence.entity.TypeAuthentification;
 import tn.temporise.infrastructure.persistence.entity.UtilisateurEntity;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Transactional
-public class AuthIntegrationTest {
+@Slf4j
+public class AuthIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
     private UserRepo utilisateurRepository; // For interacting with the database
-
-    @LocalServerPort
-    private Integer port;
-
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
-            "postgres:13.10"
-    );
-
-    @BeforeAll
-    static void beforeAll() {
-        postgres.start();
-    }
-
-    @AfterAll
-    static void afterAll() {
-        postgres.stop();
-    }
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-    }
-
-    @BeforeEach
-    void setUp() {
-        RestAssured.baseURI = "http://localhost:" + port;
-        utilisateurRepository.deleteAll(); // Clear the database before each test
-    }
+    @Autowired
+    private AuthRepo authRepo; // For interacting with the database
+    private static String jwtToken;
 
     @Test
     @Order(1)
     void testSignupUser_Success() {
+        utilisateurRepository.deleteAll();
         // Prepare the request body
         String requestBody = """
             {
-                "email": "test@example.com",
-                "password": "password123"
-            }
+                        "email": "test@example.com",
+                        "password": "skandeR123",
+                        "nom":"skander",
+                        "role":"CLIENT"
+                    }
         """;
 
         // Prepare the HTTP headers
@@ -80,13 +55,14 @@ public class AuthIntegrationTest {
                 .contentType("application/json")
                 .body(requestBody)
                 .when()
-                .post("/api/signup")
+                .post("/v1/auth/signup")
                 .then()
                 .extract()
                 .as(Response.class);
 
         // Validate the response
         assertNotNull(response.getMessage());
+        log.info("------------------------------response ------- : "+ response);
         assertEquals("201", response.getCode());
         assertEquals("utilisateur crée avec succés", response.getMessage());
 
@@ -101,33 +77,49 @@ public class AuthIntegrationTest {
     void testSigninUser_Success() {
         // First, sign up a user
         String email = "test@example.com";
-        String password = "password123";
+        String rawPassword = "password123";
+
+        // Encode the password
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encodedPassword = passwordEncoder.encode(rawPassword);
+
         UtilisateurEntity user = new UtilisateurEntity();
         user.setEmail(email);
-        user.setPassword(password);
+        user.setPassword(encodedPassword); // Store the encoded password
         utilisateurRepository.save(user);
+        AuthentificationEntity newAuth = new AuthentificationEntity();
+        newAuth.setUser(user);
+        newAuth.setPassword(encodedPassword);
+        newAuth.setType(TypeAuthentification.EMAIL);
+        newAuth.setProviderId("0");
+        authRepo.save(newAuth);
 
-        // Prepare the request body
+        // Prepare the request body (password remains raw here)
         String requestBody = """
-            {
-                "email": "test@example.com",
-                "password": "password123"
-            }
-        """;
+    {
+        "email": "test@example.com",
+        "password": "password123"
+    }
+    """;
 
-        // Perform the HTTP request
-        TokenResponse response = RestAssured.given()
+        // Perform the HTTP request and extract the JWT cookie
+        ValidatableResponse response = RestAssured.given()
                 .contentType("application/json")
                 .body(requestBody)
                 .when()
-                .post("/api/signin")
+                .post("/v1/auth/signin")
                 .then()
-                .extract()
-                .as(TokenResponse.class);
+                .log().all(); // Log the response for debugging
+
+        // Extract JWT token from cookies
+        jwtToken = response.extract().cookie("jwt");  // Get JWT from cookies
+        assertNotNull(jwtToken, "JWT token should not be null!");
 
         // Validate the response
-        assertNotNull(response.getToken());
-        assertNotNull(response.getRefreshToken());
+        Response responseBody = response.extract().as(Response.class);
+        assertNotNull(responseBody.getMessage());
+        assertEquals("200", responseBody.getCode());
+        assertEquals("Connecté avec succés", responseBody.getMessage());
     }
 
     @Test
@@ -146,23 +138,27 @@ public class AuthIntegrationTest {
                 .contentType("application/json")
                 .body(requestBody)
                 .when()
-                .post("/api/signin")
+                .post("/v1/auth/signin")
                 .then()
+                .statusCode(HttpStatus.UNAUTHORIZED.value()) // Ensure the status code is 401
+                .contentType(ContentType.JSON) // Ensure the response has a JSON content type
                 .extract()
                 .as(Response.class);
 
         // Validate the response
-        assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getCode());
+        assertEquals("6000", response.getCode());
     }
 
     @Test
     @Order(4)
     void testLogoutUser_Success() {
+        assertNotNull(jwtToken, "JWT token must be set from the signin test!");
         // Perform the HTTP request
         Response response = RestAssured.given()
                 .contentType("application/json")
+                .cookie("jwt", jwtToken)
                 .when()
-                .post("/api/logout")
+                .post("/v1/auth/logout")
                 .then()
                 .extract()
                 .as(Response.class);

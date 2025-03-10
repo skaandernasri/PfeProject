@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS authentification (
     password VARCHAR(100),
     provider_id VARCHAR(2),
     type VARCHAR(10) NOT NULL,
-    token TEXT,
+    refresh_token TEXT,
     user_id BIGINT NOT NULL REFERENCES utilisateur(id) ON DELETE CASCADE
 );
 

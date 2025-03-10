@@ -17,7 +17,7 @@ import tn.temporise.application.mapper.RegMapper;
 import tn.temporise.application.service.*;
 import tn.temporise.domain.model.*;
 import tn.temporise.infrastructure.api.AuthentificationApi;
-import tn.temporise.infrastructure.persistence.entity.UtilisateurEntity;
+import tn.temporise.infrastructure.security.utils.JwtRequestFilter;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -26,122 +26,71 @@ public class AuthController implements AuthentificationApi {
 
     private final AuthenticationManager authenticationManager;
     private final RegMapper regMapper;
-    @Autowired
     private final RegistrationService registrationService;
-    @Autowired
     private final LogoutService logoutService;
     private final HttpServletRequest request;
     private final HttpServletResponse response;
-    @Autowired
     private final TokenService tokenService;
-    @Autowired
     private final CustomOAuth2UserService customOAuth2UserService;
     @Autowired
-     CustomUserDetailsService customUserDetailsService;
+    CustomUserDetailsService customUserDetailsService;
     @Value("${cookie.expiration}")
     private int cookieExpiration;
+    private final JwtRequestFilter jwtRequestFilter;
 
     @Override
-    public ResponseEntity<Response> _logoutUser() {
-        try {
+    public ResponseEntity<Response> _logoutUser() throws Exception{
             logoutService.logout(request, response);
             Response responseBody = new Response();
             responseBody.setCode("200");
             responseBody.setMessage("Déconnecter avec succés");
             return ResponseEntity.ok().body(responseBody);
-        } catch (Exception e) {
-            log.error("Error during logout: ", e);
-            throw e;
-        }
+
     }
 
     @Override
-    public ResponseEntity<Response> _refreshToken(RefreshTokenRequest refreshTokenRequest) {
-        try {
+    public ResponseEntity<Response> _refreshToken(RefreshTokenRequest refreshTokenRequest) throws Exception {
             TokenResponse tokenResponse = tokenService.refreshToken(refreshTokenRequest);
-
-            Cookie jwtCookie = new Cookie("jwt", tokenResponse.getToken());
-            jwtCookie.setHttpOnly(true);
-            jwtCookie.setSecure(true);
-            jwtCookie.setPath("/");
-            jwtCookie.setMaxAge(cookieExpiration);
-
-            response.addCookie(jwtCookie);
-            Response response=new Response();
+            jwtRequestFilter.setJwtCookie(response,tokenResponse.getToken(),cookieExpiration);
+            Response response = new Response();
             response.setCode("200");
             response.setMessage("token rafraichi avec succès");
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Token refresh failed: ", e);
-            throw e;
-        }
     }
 
     @Override
-    public ResponseEntity<Response> _signinFacebook(SigninFacebookRequest signinFacebookRequest) {
+    public ResponseEntity<Response> _signinFacebook(SigninFacebookRequest signinFacebookRequest)throws Exception {
         // Implementation for Facebook sign-in
         return null;
     }
 
     @Override
-    public ResponseEntity<Response> _signinGoogle(SigninGoogleRequest signinGoogleRequest) {
-        try {
-            TokenResponse tokenResponse = customOAuth2UserService.signinGoogle(signinGoogleRequest.getIdToken());
-
-            Cookie jwtCookie = new Cookie("jwt", tokenResponse.getToken());
-            jwtCookie.setHttpOnly(true);
-            jwtCookie.setSecure(true);
-            jwtCookie.setPath("/");
-            jwtCookie.setMaxAge(7 * 24 * 60 * 60);
-
-            response.addCookie(jwtCookie);
-            Response response=new Response();
-            response.setCode("200");
-            response.setMessage("Connecté avec google en succés");
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Unexpected error during Google sign-in: ", e);
-            throw e;
-        }
+    public ResponseEntity<Response> _signinGoogle(SigninGoogleRequest signinGoogleRequest) throws Exception {
+        TokenResponse tokenResponse = customOAuth2UserService.signinGoogle(signinGoogleRequest.getIdToken());
+        jwtRequestFilter.setJwtCookie(response,tokenResponse.getToken(),cookieExpiration);
+        Response response = new Response();
+        response.setCode("200");
+        response.setMessage("Connecté avec google en succés");
+        return ResponseEntity.ok(response);
     }
-
     @Override
-    public ResponseEntity<Response> _signinUser(SigninUserRequest signinUserRequest) {
-        try {
-            TokenResponse tokenResponse = customUserDetailsService.signinUser(signinUserRequest,authenticationManager,tokenService);
-
-            Cookie jwtCookie = new Cookie("jwt", tokenResponse.getToken());
-            jwtCookie.setHttpOnly(true);
-            jwtCookie.setSecure(true);
-            jwtCookie.setPath("/");
-            jwtCookie.setMaxAge(7 * 24 * 60 * 60);
-
-            response.addCookie(jwtCookie);
-            Response response=new Response();
+    public ResponseEntity<Response> _signinUser(SigninUserRequest signinUserRequest) throws Exception {
+            TokenResponse tokenResponse = customUserDetailsService.signinUser(signinUserRequest, authenticationManager, tokenService);
+            jwtRequestFilter.setJwtCookie(response,tokenResponse.getToken(),cookieExpiration);
+            Response response = new Response();
             response.setCode("200");
-            response.setMessage("Connecté en succés");
+            response.setMessage("Connecté avec succés");
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Authentication failed: ", e);
-            throw e;
         }
-    }
-
-    @Override
-    public ResponseEntity<Response> _signupUser(SignupUserRequest signupUserRequest) {
-        try {
-            UtilisateurEntity user = regMapper.toEntity(signupUserRequest);
+        @Override
+        public ResponseEntity<Response> _signupUser (SignupUserRequest signupUserRequest) throws Exception {
+            UtilisateurModel user = regMapper.toModel(signupUserRequest);
             registrationService.register(user);
             log.info("User registered successfully");
-            Response response=new Response();
+            Response response = new Response();
             response.setCode("201");
             response.setMessage("utilisateur crée avec succés");
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
-
-        }
-        catch (Exception e){
-            throw e;
         }
 
-    }
 }

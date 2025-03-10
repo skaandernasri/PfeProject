@@ -9,4 +9,8 @@ public class UnauthorizedException extends RuntimeException {
         super(message);
         this.code=code;
     }
+    public UnauthorizedException(String message) {
+        super(message);
+        this.code="5000";
+    }
 }

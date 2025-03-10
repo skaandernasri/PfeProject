@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepo userRepo;
     private final AuthRepo authenticationRepo;
-    @Autowired
     private final JwtUtil jwtUtil;
 
 
@@ -63,9 +62,9 @@ public class CustomUserDetailsService implements UserDetailsService {
                             .collect(Collectors.toList()),
                     auth.getProviderId()
             );
-        } catch (UsernameNotFoundException e) {
+        } catch (InternalServerErrorException e) {
             log.error("Error loading user by username: ", e);
-            throw new UsernameNotFoundException("Failed to load user by username","404");
+            throw new UsernameNotFoundException("internal error occured","500");
         }
     }
 
@@ -111,7 +110,6 @@ public class CustomUserDetailsService implements UserDetailsService {
             // Prepare the response object
             TokenResponse response = new TokenResponse();
             response.setToken(token);
-            //response.setRefreshToken(refreshToken);  // Assuming you want to send the refresh token to the client
 
             // Retrieve the authentication record from the database
             Optional<AuthentificationEntity> authOpt = authenticationRepo.findByUserEmailAndProviderId(userDetails.getUsername(), userDetails.getProviderId());
@@ -119,7 +117,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             // If the user exists and the token is empty, save the refresh token to the database
             if (authOpt.isPresent()) {
                 AuthentificationEntity auth = authOpt.get();
-                if (auth.getToken() == null || auth.getToken().isEmpty()) {
+                if (auth.getRefreshToken() == null || auth.getRefreshToken().isEmpty()) {
                     tokenService.saveToken(userDetails.getUsername(), refreshToken, userDetails.getProviderId());
                 }
             } else {
