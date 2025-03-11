@@ -72,7 +72,9 @@ CREATE TABLE IF NOT EXISTS produit (
     description TEXT,
     prix DECIMAL(10, 2) NOT NULL,
     stock INT NOT NULL DEFAULT 0,
-    categorie_id BIGINT NOT NULL REFERENCES categorie(id) ON DELETE CASCADE
+    categorie_id BIGINT REFERENCES categorie(id) ON DELETE CASCADE
+    -- it was     categorie_id BIGINT NOT NULL REFERENCES categorie(id) ON DELETE CASCADE
+
 );
 -- Table: panier
 CREATE TABLE panier (

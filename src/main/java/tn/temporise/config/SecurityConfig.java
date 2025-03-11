@@ -15,6 +15,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import tn.temporise.infrastructure.security.utils.JwtRequestFilter;
 import tn.temporise.application.service.CustomUserDetailsService;
@@ -35,15 +36,27 @@ public class SecurityConfig {
 
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,AccessDeniedHandler accessDeniedHandler) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/**"
+                        .requestMatchers("/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/oauth2/**",
+                                "/v1/auth/signup",
+                                "/v1/auth/signin",
+                                "/swagger-resources/**",
+                                "/webjars/**"
                         ).permitAll()
                         //.requestMatchers(HttpMethod.POST,"/tempo-rise/api/v1/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/v1/auth/refresh").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/v1/auth/refresh").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/v1/produits/**","/v1/categories/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/v1/produits/**","/v1/categories/**").hasAnyAuthority("ADMIN","GESTIONNAIRE")
+                        .requestMatchers(HttpMethod.PUT, "/v1/produits/**","/v1/categories/**").hasAnyAuthority("ADMIN","GESTIONNAIRE")
+                        .requestMatchers(HttpMethod.DELETE,"/v1/produits/**","/v1/categories/**").hasAnyAuthority("ADMIN","GESTIONNAIRE")
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler(accessDeniedHandler) // Use custom access denied handler
                 )
 
                 .oauth2ResourceServer(oauth2 -> oauth2

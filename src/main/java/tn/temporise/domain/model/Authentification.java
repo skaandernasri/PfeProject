@@ -1,7 +1,6 @@
 package tn.temporise.domain.model;
 
 import tn.temporise.infrastructure.persistence.entity.TypeAuthentification;
-import tn.temporise.infrastructure.persistence.entity.UtilisateurEntity;
 
 public record Authentification(
         Long id,
@@ -9,5 +8,5 @@ public record Authentification(
         String providerId,
         String token,
         TypeAuthentification type,
-        UtilisateurEntity user
+        UtilisateurModel user
 ) { }

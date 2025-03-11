@@ -68,6 +68,9 @@ server:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
 jwt:
   secret:
     key: DnpYmWn9jCGE2DY5NUqIDtt44N3fFO1EfhgwL9c3hQ4=

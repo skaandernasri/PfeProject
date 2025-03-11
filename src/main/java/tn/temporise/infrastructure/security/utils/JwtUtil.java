@@ -1,5 +1,6 @@
 package tn.temporise.infrastructure.security.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,7 +14,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-
+@Slf4j
 @Component
 public class JwtUtil {
 
@@ -58,6 +59,7 @@ public class JwtUtil {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList()));
         claims.put("provider_id",userDetails.getProviderId());
+        log.info("-------authorities "+ claims.values());
         return createToken(claims, userDetails.getUsername(), accessTokenExpiration);
     }
 
@@ -65,6 +67,10 @@ public class JwtUtil {
     public String generateRefreshToken(CustomUserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("provider_id",userDetails.getProviderId());
+        claims.put("roles",userDetails.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList()));
         return createToken(claims, userDetails.getUsername(), refreshTokenExpiration);
     }
     private String createToken(Map<String, Object> claims, String subject,long expiration) {

@@ -1,6 +1,5 @@
 package tn.temporise.domain.model;
 
-import tn.temporise.infrastructure.persistence.entity.CategorieEntity;
 
 import java.util.Set;
 
@@ -11,5 +10,5 @@ public record Produit(
         double prix,
         int stock,
         Set<Promotion> promotions,
-        CategorieEntity categorie
+        Categorie categorie
 ) {}

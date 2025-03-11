@@ -221,7 +221,7 @@
 					<source>${java.version}</source>
 					<target>${java.version}</target>
 					<!--					generated source directory was here-->
-					<generatedSourcesDirectory>                     ${project.build.directory}/generated-sources/openapi                 </generatedSourcesDirectory>
+<!--					<generatedSourcesDirectory>                     ${project.build.directory}/generated-sources/openapi                 </generatedSourcesDirectory>-->
 						<parameters>true</parameters>
 					<annotationProcessorPaths>
 						<path>

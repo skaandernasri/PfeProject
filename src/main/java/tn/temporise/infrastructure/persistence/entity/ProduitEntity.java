@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.util.HashSet;
 import java.util.Set;
 @Entity
@@ -32,7 +31,7 @@ public class ProduitEntity {
     @ManyToOne
     @JoinColumn(name = "categorie_id", nullable = false)
     private CategorieEntity categorie;
-    @ManyToMany(mappedBy = "produits")
+    @ManyToMany(mappedBy = "produits",cascade = CascadeType.REMOVE)
     private Set<HistoriqueCommandeEntity> historiqueCommandeEntities;
 
 }

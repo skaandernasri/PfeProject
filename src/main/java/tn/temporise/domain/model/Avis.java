@@ -1,8 +1,6 @@
 package tn.temporise.domain.model;
 
 
-import tn.temporise.infrastructure.persistence.entity.ProduitEntity;
-import tn.temporise.infrastructure.persistence.entity.UtilisateurEntity;
 
 import java.time.LocalDateTime;
 
@@ -13,10 +11,10 @@ public record Avis (  Long id,
         LocalDateTime datePublication,
 
 
-        UtilisateurEntity user,
+        UtilisateurModel user,
 
 
-        ProduitEntity produit){
+        Produit produit){
 
 
 }

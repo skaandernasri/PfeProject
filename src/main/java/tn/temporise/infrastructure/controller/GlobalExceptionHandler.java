@@ -2,6 +2,7 @@ package tn.temporise.infrastructure.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,6 +26,21 @@ public class GlobalExceptionHandler {
         response.setMessage(ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
+    @ExceptionHandler(ProductNotFound.class)
+    public ResponseEntity<Response> handelProductNotFound(ProductNotFound ex) {
+        Response response = new Response();
+        response.setMessage(ex.getMessage());
+        response.setCode(ex.getCode());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<Response> handelNotFoundException(NotFoundException ex) {
+        Response response = new Response();
+        response.setMessage(ex.getMessage());
+        response.setCode(ex.getCode());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
 
 
     @ExceptionHandler(UnauthorizedException.class)
@@ -33,6 +49,14 @@ public class GlobalExceptionHandler {
         response.setCode(ex.getCode());
         response.setMessage(ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Response> handleAccessDeniedException(AccessDeniedException ex) {
+        Response response = new Response();
+        response.setCode("4003");
+        response.setMessage(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     @ExceptionHandler(InternalServerErrorException.class)

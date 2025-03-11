@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "historiquecommande")
+@Table(name = "historique_commande")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,8 +24,8 @@ public class HistoriqueCommandeEntity {
     private StatutCommande statut;
     @ManyToMany
     @JoinTable(
-            name = "historiqueCommande_produit",
-            joinColumns = @JoinColumn(name = "historiqueCommande_id"),
+            name = "historiquecommande_produit",
+            joinColumns = @JoinColumn(name = "historiquecommande_id"),
             inverseJoinColumns = @JoinColumn(name = "produit_id")
     )
     Set<ProduitEntity> produits=new HashSet<>();

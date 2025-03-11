@@ -31,6 +31,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
         try {
+            log.debug("before getJwtFromAuthorizationHeader");
             String jwt = getJwtFromAuthorizationHeader(request);
             String email = null;
 
@@ -96,12 +97,18 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         // Add public endpoints here
-        return requestURI.startsWith("/v1/auth/signin") ||
+        log.debug("Checking if request should be filtered: " + requestURI);
+
+        boolean shouldNotFilter = requestURI.startsWith("/v1/auth/signin") ||
                 requestURI.startsWith("/v1/auth/signup") ||
                 requestURI.startsWith("/oauth2/") ||
                 requestURI.startsWith("/swagger-ui/") ||
                 requestURI.startsWith("/v3/api-docs") ||
-                requestURI.startsWith("/swagger-ui/index.html/");
+                requestURI.startsWith("/swagger-resources/") ||
+                requestURI.startsWith("/swagger-ui/index.html");
+        logger.debug("Should not filter: " + shouldNotFilter);
+        return shouldNotFilter;
+
     }
     public void setJwtCookie(HttpServletResponse response, String jwtToken, int maxAge) {
         Cookie jwtCookie = new Cookie("jwt", jwtToken);

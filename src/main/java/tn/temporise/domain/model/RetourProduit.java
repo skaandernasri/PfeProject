@@ -1,7 +1,6 @@
 package tn.temporise.domain.model;
 
 
-import tn.temporise.infrastructure.persistence.entity.UtilisateurEntity;
 
 import java.time.LocalDateTime;
 
@@ -11,5 +10,5 @@ public record RetourProduit(
         String raisonRetour,
         LocalDateTime dateRetour,
         Produit produit,
-        UtilisateurEntity utilisateur
+        UtilisateurModel utilisateur
 ) {}

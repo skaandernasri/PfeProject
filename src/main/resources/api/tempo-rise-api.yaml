@@ -881,6 +881,297 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Response'
+  /v1/produits:
+    get:
+      summary: Récupérer tous les produits
+      operationId: getAllProducts
+      tags:
+        - Produits
+      responses:
+        '200':
+          description: Liste des produits
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductResponse'
+    post:
+      summary: Créer un nouveau produit
+      operationId: createProduct
+      tags:
+        - Produits
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+      responses:
+        '201':
+          description: Panier créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+    delete:
+      summary: Supprimer tous les produits
+      operationId: deleteAllProducts
+      tags:
+        - Produits
+      responses:
+        '204':
+          description: Tous les produits ont été supprimés avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+
+  /v1/produits/{id}:
+    get:
+      summary: Récupérer un produit par ID
+      operationId: getProductById
+      tags:
+        - Produits
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du produit à récupérer
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Produit trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '404':
+          description: Produit non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+    put:
+      summary: Mettre à jour un produit
+      operationId: updateProduit
+      tags:
+        - Produits
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du produit à mettre à jour
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+      responses:
+        '200':
+          description: Produit mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '404':
+          description: Produit non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '500':
+          description: Erreur serveur interne
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+    delete:
+      summary: Supprimer un produit
+      operationId: deleteProduct
+      tags:
+        - Produits
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du produit à supprimer
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Produit non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '404':
+          description: Produit non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '500':
+          description: Erreur serveur interne
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+  /v1/categories:
+    get:
+      summary: Récupérer toutes les catégories
+      operationId: getAllCategories
+      tags:
+        - Categories
+      responses:
+        '200':
+          description: Liste des catégories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategorieResponse'
+
+    post:
+      summary: Créer une nouvelle catégorie
+      operationId: createCategory
+      tags:
+        - Categories
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategorieRequest'
+      responses:
+        '201':
+          description: Catégorie créée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategorieResponse'
+
+    delete:
+      summary: Supprimer toutes les catégories
+      operationId: deleteAllCategories
+      tags:
+        - Categories
+      responses:
+        '204':
+          description: Toutes les catégories ont été supprimées avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+
+  /v1/categories/{id}:
+    get:
+      summary: Récupérer une catégorie par ID
+      operationId: getCategoryById
+      tags:
+        - Categories
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la catégorie à récupérer
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Catégorie trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategorieResponse'
+        '404':
+          description: Catégorie non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+
+    put:
+      summary: Mettre à jour une catégorie
+      operationId: updateCategory
+      tags:
+        - Categories
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la catégorie à mettre à jour
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategorieRequest'
+      responses:
+        '200':
+          description: Catégorie mise à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategorieResponse'
+        '404':
+          description: Catégorie non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '500':
+          description: Erreur serveur interne
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+
+    delete:
+      summary: Supprimer une catégorie
+      operationId: deleteCategory
+      tags:
+        - Categories
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la catégorie à supprimer
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Catégorie supprimée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '404':
+          description: Catégorie non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '500':
+          description: Erreur serveur interne
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+
 
 components:
   securitySchemes:
@@ -1170,6 +1461,135 @@ components:
               quantite:
                 type: integer
                 description: La quantité de l'article dans le panier
+    ProductRequest:
+      type: object
+      properties:
+        nom:
+          type: string
+          description: Nom du produit
+        description:
+          type: string
+          description: Description du produit
+        prix:
+          type: number
+          format: double
+          description: Prix du produit
+        stock:
+          type: integer
+          format: int64
+          description: Quantité du produit
+        categorie:
+          type: integer
+          format: int64
+          description: Catégorie du produit
+        promotions:
+          type: array
+          items:
+            type: object
+            description: Promotion appliquée au produit
+            properties:
+              promotionId:
+                type: integer
+                format: int64
+                description: L'ID de la promotion liée au produit
+      required:
+        - nom
+        - prix
+        - stock
+#        - categorie
+    ProductResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: L'ID unique du produit
+        nom:
+          type: string
+          description: Nom du produit
+        description:
+          type: string
+          description: Description du produit
+        prix:
+          type: number
+          format: double
+          description: Prix du produit
+        stock:
+          type: integer
+          description: Quantité du produit en stock
+        categorie:
+          type: object
+          description: Détails de la catégorie du produit
+          properties:
+            id:
+              type: integer
+              format: int64
+              description: L'ID de la catégorie
+            nom:
+              type: string
+              description: Nom de la catégorie
+            description:
+              type: string
+              description: Description du produit
+        promotions:
+          type: array
+          description: Liste des promotions appliquées au produit
+          items:
+            type: object
+            properties:
+              promotionId:
+                type: integer
+                format: int64
+                description: L'ID de la promotion
+              nomPromotion:
+                type: string
+                description: Nom de la promotion
+              reduction:
+                type: number
+                format: double
+                description: Pourcentage ou montant de la réduction
+              dateDebut:
+                type: string
+                format: date-time
+                description: Date début du promotion
+              dateFin:
+                type: string
+                format: date-time
+                description: Date fin du promotion
+      required:
+        - id
+        - nom
+        - prix
+        - stock
+        - categorie
+        - dateCreation
+    CategorieRequest:
+      type: object
+      properties:
+        nom:
+          type: string
+          description: Nom du categorie
+        description:
+          type: string
+          description: Description du produit
+      required:
+        - nom
+    CategorieResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: L'ID unique du categorie
+        nom:
+          type: string
+          description: Nom du categorie
+        description:
+          type: string
+          description: Description du categorie
+      required:
+        - nom
+        - description
     Response:
       type: object
       properties:

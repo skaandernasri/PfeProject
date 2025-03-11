@@ -2,7 +2,6 @@ package tn.temporise.application.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -52,7 +51,8 @@ public class CustomUserDetailsService implements UserDetailsService {
                 // If the provider is not local, throw an exception
                 throw new NonLocalProviderException("User is registered with a non-local provider. Please use the appropriate login method.","400");
             }
-
+//            log.info("User found: " + user.getEmail());
+//            log.info("Roles fetched: " + user.getRoles());
             // If the provider is local, return the UserDetails object
             return new CustomUserDetails(
                     user.getEmail(),
@@ -102,6 +102,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
             // Load user details
             CustomUserDetails userDetails = loadUserByUsername(signinUserRequest.getEmail());
+            log.info("-------------------------"+userDetails.getAuthorities());
 
             // Generate the access token and refresh token
             String token = jwtUtil.generateAccessToken(userDetails);

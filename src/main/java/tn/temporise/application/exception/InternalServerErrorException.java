@@ -9,5 +9,9 @@ public class InternalServerErrorException extends RuntimeException {
         super(message);
         this.code=code;
     }
+    public InternalServerErrorException(String message) {
+        super(message);
+        this.code="5000";
+    }
 }
 
