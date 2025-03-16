@@ -52,7 +52,7 @@ public class AuthIntegrationTest extends BaseIntegrationTest {
 
         // Perform the HTTP request
         Response response = RestAssured.given()
-                .contentType("application/json")
+                .contentType(ContentType.JSON)
                 .body(requestBody)
                 .when()
                 .post("/v1/auth/signup")

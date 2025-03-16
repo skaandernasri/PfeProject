@@ -40,11 +40,8 @@ public class CategorieService {
     // Read: Retrieve a category by its ID
     public CategorieResponse getCategorieById(Long id) {
         try {
-            Optional<CategorieEntity> categorie = categorieRepo.findById(id); // Find category by ID
-            if (categorie.isPresent()) {
-                return categorieMapper.entityToResponse(categorie.get()); // Convert entity to model
-            }
-            throw new NotFoundException("Category not found");
+            CategorieEntity categorie = categorieRepo.findById(id).orElseThrow(()->new NotFoundException("Categorie not found with id: " + id)); // Find category by ID
+            return categorieMapper.entityToResponse(categorie);
         }
         catch (NotFoundException e){
             throw e;

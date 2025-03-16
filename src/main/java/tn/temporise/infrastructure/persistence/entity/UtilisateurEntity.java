@@ -38,7 +38,9 @@ public class UtilisateurEntity {
     public UtilisateurEntity(String email, Role role) {
         this.email = email;
         this.roles.add(role);
+        this.password="Skander123.";
     }
+
 
     @Override
     public String toString() {

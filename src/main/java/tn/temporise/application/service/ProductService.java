@@ -39,19 +39,14 @@ public class ProductService {
     // Read: Retrieve a product by its ID
     public ProductResponse getProductById(Long id) {
         try {
-            Optional<ProduitEntity> produit = productRepo.findById(id);
-            log.info("---------Product before getProductById Service------ " + produit + id);
-            if (produit.isEmpty()) {
-                log.info("----------Product after getProductById Service : " + productMapper.entityToModel(produit.get()));
-                throw new ProductNotFound("Product not found");
-            }else {
-                log.info("Product found: " + produit.get());
-            }
-            return productMapper.entityToResponse(produit.get());
+            ProduitEntity produit = productRepo.findById(id)
+                    .orElseThrow(() -> new ProductNotFound("Product not found with id: " + id));
+            log.info("---------Product before getProductById Service------ " + produit + "---id: " + id);
+            return productMapper.entityToResponse(produit);
         }catch (ProductNotFound e){
-            throw  e;
+            throw e;
         }catch (Exception e){
-            throw new InternalServerErrorException("Failed to retrieve product "+e.getMessage());
+            throw new InternalServerErrorException("Failed to retrieve product: "+e.getMessage());
         }
 
     }

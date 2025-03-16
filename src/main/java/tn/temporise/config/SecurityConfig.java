@@ -53,7 +53,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/v1/produits/**","/v1/categories/**").hasAnyAuthority("ADMIN","GESTIONNAIRE")
                         .requestMatchers(HttpMethod.PUT, "/v1/produits/**","/v1/categories/**").hasAnyAuthority("ADMIN","GESTIONNAIRE")
                         .requestMatchers(HttpMethod.DELETE,"/v1/produits/**","/v1/categories/**").hasAnyAuthority("ADMIN","GESTIONNAIRE")
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .exceptionHandling(exception -> exception
                         .accessDeniedHandler(accessDeniedHandler) // Use custom access denied handler

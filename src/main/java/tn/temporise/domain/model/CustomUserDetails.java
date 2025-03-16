@@ -31,6 +31,12 @@ public record CustomUserDetails(
     ) {
         this(email, password, authorities , providerId, true, true, true, true);
     }
+    public CustomUserDetails(
+            String email,
+            Collection<? extends GrantedAuthority> authorities
+    ) {
+        this(email, null, authorities , null, true, true, true, true);
+    }
 
     // Constructor for cases where only email and providerId are provided
     public CustomUserDetails(String email, String providerId) {
