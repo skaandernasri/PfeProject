@@ -8,7 +8,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import tn.temporise.application.exception.ConflictException;
+import tn.temporise.application.mapper.AuthMapper;
 import tn.temporise.application.mapper.RegMapper;
+import tn.temporise.domain.model.Authentification;
 import tn.temporise.domain.model.UtilisateurModel;
 import tn.temporise.infrastructure.persistence.entity.AuthentificationEntity;
 import tn.temporise.infrastructure.persistence.entity.UtilisateurEntity;
@@ -28,7 +30,8 @@ class RegistrationServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
-
+    @Mock
+    AuthMapper authMapper;
     @Mock
     RegMapper regMapper;
     @InjectMocks
@@ -53,8 +56,8 @@ class RegistrationServiceTest {
         registrationService.register(utilisateurModel);
 
         // Verify interactions
-        verify(userRepo, times(1)).save(userEntity);
-        verify(authRepo, times(1)).save(any(AuthentificationEntity.class));
+        verify(userRepo, times(1)).save(utilisateurModel);
+        verify(authRepo, times(1)).save(any(Authentification.class));
     }
 
     @Test
@@ -66,8 +69,8 @@ class RegistrationServiceTest {
         auth.setProviderId("0"); // Set a non-null providerId
         UtilisateurModel utilisateurModel=regMapper.entityToModel(userEntity);
 
-        when(userRepo.findByEmail("test@example.com")).thenReturn(Optional.of(userEntity));
-        when(authRepo.findByUserEmail("test@example.com")).thenReturn(Optional.of(auth));
+        when(userRepo.findByEmail("test@example.com")).thenReturn(Optional.of(utilisateurModel));
+        when(authRepo.findByUserEmail("test@example.com")).thenReturn(Optional.of(authMapper.entityToModel(auth)));
 
         // Assert exception
         assertThrows(ConflictException.class, () -> {

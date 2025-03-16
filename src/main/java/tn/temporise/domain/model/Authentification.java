@@ -9,4 +9,8 @@ public record Authentification(
         String token,
         TypeAuthentification type,
         UtilisateurModel user
-) { }
+) {
+    public Authentification(long id, String password,String providerId) {
+        this(id, password, providerId,null,null,null);
+    }
+}

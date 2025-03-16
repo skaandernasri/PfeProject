@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tn.temporise.application.exception.InternalServerErrorException;
 import tn.temporise.application.exception.UnauthorizedException;
+import tn.temporise.application.mapper.AuthMapper;
+import tn.temporise.domain.model.Authentification;
 import tn.temporise.domain.model.CustomUserDetails;
 import tn.temporise.domain.model.RefreshTokenRequest;
 import tn.temporise.domain.model.TokenResponse;
@@ -26,6 +28,8 @@ public class TokenService {
     private JwtUtil jwtUtil;
     @Autowired
     private AuthRepo authRepo;
+    @Autowired
+    private AuthMapper authMapper;
 
         public TokenResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
         try {
@@ -33,12 +37,12 @@ public class TokenService {
             String email = jwtUtil.extractEmail(oldAccessToken);
             String providerId=jwtUtil.extractProviderId(oldAccessToken);
             CustomUserDetails userDetails = userDetailsService.getUserDetails(email,providerId);
-            Optional<AuthentificationEntity> storedToken = authRepo.findByUserEmailAndProviderId(email, providerId);
+            Optional<Authentification> storedToken = authRepo.findByUserEmailAndProviderId(email, providerId);
             if (storedToken.isEmpty()) {
                 throw new UnauthorizedException("Aucun token trouvé pour cet utilisateur", "401");
             }
 
-            String refreshToken = storedToken.get().getRefreshToken();
+            String refreshToken = storedToken.get().token();
             if (!jwtUtil.validateToken(refreshToken, userDetails)) {
                 throw new UnauthorizedException("Token de rafraîchissement invalide", "401");
             }
@@ -58,10 +62,12 @@ public class TokenService {
 
     public void saveToken(String email, String token, String providerId) {
         try {
-            Optional<AuthentificationEntity> authentification = authRepo.findByUserEmailAndProviderId(email, providerId);
+            Optional<Authentification> authentification = authRepo.findByUserEmailAndProviderId(email, providerId);
             if (authentification.isPresent()) {
-                authentification.get().setRefreshToken(token);
-                authRepo.save(authentification.get());
+                AuthentificationEntity authentification1=authMapper.modelToEntity(authentification.get());
+                authentification1.setRefreshToken(token);
+                //authentification.get().token(token);
+                authRepo.save(authMapper.entityToModel(authentification1));
             }
         } catch (InternalServerErrorException e) {
             log.error("Error saving token: ", e);
@@ -73,10 +79,11 @@ public class TokenService {
         try {
             String providerId = customUserDetails.getProviderId();
             String email = customUserDetails.getUsername();
-            Optional<AuthentificationEntity> authentification = authRepo.findByUserEmailAndProviderId(email, providerId);
+            Optional<Authentification> authentification = authRepo.findByUserEmailAndProviderId(email, providerId);
             if (authentification.isPresent()) {
-                authentification.get().setRefreshToken(null);
-                authRepo.save(authentification.get());
+                AuthentificationEntity authentification1=authMapper.modelToEntity(authentification.get());
+                authentification1.setRefreshToken(null);
+                authRepo.save(authMapper.entityToModel(authentification1));
             }
             log.info("Token removed for user: " + email);
         } catch (InternalServerErrorException e) {

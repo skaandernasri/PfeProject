@@ -24,6 +24,8 @@ public class ProduitEntity {
 
     private double prix;
 
+    private int stock ;
+
     @ManyToMany(mappedBy = "produits")
     private Set<PanierEntity> paniers;
     @OneToMany(mappedBy = "produit", cascade = CascadeType.ALL)

@@ -2,33 +2,49 @@ package tn.temporise.infrastructure.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import tn.temporise.application.mapper.CategorieMapper;
+import tn.temporise.domain.model.Categorie;
 import tn.temporise.domain.port.CategorieRepo;
 import tn.temporise.infrastructure.persistence.entity.CategorieEntity;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Repository
 @RequiredArgsConstructor
 public class CategorieRepoImp implements CategorieRepo {
     private final CategorieJpaRepo categorieJpaRepo;
+    private final CategorieMapper categorieMapper;
     @Override
-    public CategorieEntity save(CategorieEntity categorie) {
-        return categorieJpaRepo.save(categorie);
+    public Categorie save(Categorie categorie) {
+        CategorieEntity categorieEntity=categorieJpaRepo.save(categorieMapper.modelToEntity(categorie));
+        return categorieMapper.entityToModel(categorieEntity);
     }
 
     @Override
-    public Optional<CategorieEntity> findById(Long id) {
-        return categorieJpaRepo.findById(id);
+    public Categorie findById(Long id) {
+        return categorieJpaRepo.findById(id)
+                .map(categorieMapper::entityToModel)
+                .orElse(null);
     }
 
     @Override
-    public List<CategorieEntity> findAll() {
-        return categorieJpaRepo.findAll();
+    public List<Categorie> findAll() {
+        return categorieJpaRepo.findAll()
+                .stream()
+                .map(categorieMapper::entityToModel)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public CategorieEntity update(CategorieEntity categorie) {
-        return categorieJpaRepo.save(categorie);
+    public Categorie update(Categorie categorie) {
+        return categorieJpaRepo.findById(categorie.id())
+                .map(existingEntity -> {
+                    CategorieEntity updatedEntity = categorieMapper.modelToEntity(categorie);
+                    updatedEntity.setId(existingEntity.getId()); // Assurer la conservation de l'ID
+                    return categorieMapper.entityToModel(categorieJpaRepo.save(updatedEntity));
+                })
+                .orElse(null);
     }
 
     @Override

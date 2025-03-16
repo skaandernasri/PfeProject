@@ -11,7 +11,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import tn.temporise.application.mapper.AuthMapper;
+import tn.temporise.application.mapper.RegMapper;
 import tn.temporise.domain.model.Response;
+import tn.temporise.domain.model.UtilisateurModel;
 import tn.temporise.domain.port.AuthRepo;
 import tn.temporise.domain.port.UserRepo;
 import tn.temporise.infrastructure.persistence.entity.AuthentificationEntity;
@@ -28,6 +31,10 @@ public class AuthIntegrationTest extends BaseIntegrationTest {
     @Autowired
     private AuthRepo authRepo; // For interacting with the database
     private static String jwtToken;
+    @Autowired
+    private RegMapper regMapper;
+    @Autowired
+    private AuthMapper authMapper;
 
     @Test
     @Order(1)
@@ -52,7 +59,7 @@ public class AuthIntegrationTest extends BaseIntegrationTest {
 
         // Perform the HTTP request
         Response response = RestAssured.given()
-                .contentType("application/json")
+                .contentType(ContentType.JSON)
                 .body(requestBody)
                 .when()
                 .post("/v1/auth/signup")
@@ -67,9 +74,9 @@ public class AuthIntegrationTest extends BaseIntegrationTest {
         assertEquals("utilisateur crée avec succés", response.getMessage());
 
         // Validate the database state
-        UtilisateurEntity user = utilisateurRepository.findByEmail("test@example.com").orElse(null);
+        UtilisateurModel user = utilisateurRepository.findByEmail("test@example.com").orElse(null);
         assertNotNull(user);
-        assertEquals("test@example.com", user.getEmail());
+        assertEquals("test@example.com", user.email());
     }
 
     @Test
@@ -83,23 +90,30 @@ public class AuthIntegrationTest extends BaseIntegrationTest {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String encodedPassword = passwordEncoder.encode(rawPassword);
 
+        // Create and save UtilisateurEntity
         UtilisateurEntity user = new UtilisateurEntity();
         user.setEmail(email);
         user.setPassword(encodedPassword); // Store the encoded password
-        utilisateurRepository.save(user);
+        UtilisateurModel utilisateurModel = regMapper.entityToModel(user);
+        UtilisateurModel savedUserModel = utilisateurRepository.save(utilisateurModel); // Save UtilisateurModel
+
+        // Map the saved UtilisateurModel back to UtilisateurEntity
+        UtilisateurEntity savedUserEntity = regMapper.modelToEntity(savedUserModel);
+
+        // Create and save AuthentificationEntity
         AuthentificationEntity newAuth = new AuthentificationEntity();
-        newAuth.setUser(user);
+        newAuth.setUser(savedUserEntity); // Use the saved UtilisateurEntity
         newAuth.setPassword(encodedPassword);
         newAuth.setType(TypeAuthentification.EMAIL);
         newAuth.setProviderId("0");
-        authRepo.save(newAuth);
+        authRepo.save(authMapper.entityToModel(newAuth)); // Save AuthentificationEntity
 
         // Prepare the request body (password remains raw here)
         String requestBody = """
-    {
-        "email": "test@example.com",
-        "password": "password123"
-    }
+        {
+            "email": "test@example.com",
+            "password": "password123"
+        }
     """;
 
         // Perform the HTTP request and extract the JWT cookie
@@ -123,7 +137,7 @@ public class AuthIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     void testSigninUser_InvalidCredentials() {
         // Prepare the request body with invalid credentials
         String requestBody = """
@@ -150,7 +164,7 @@ public class AuthIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @Order(4)
+    @Order(3)
     void testLogoutUser_Success() {
         assertNotNull(jwtToken, "JWT token must be set from the signin test!");
         // Perform the HTTP request

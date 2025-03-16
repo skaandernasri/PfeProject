@@ -1,5 +1,6 @@
 package tn.temporise.infrastructure.security.utils;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtUtil {
 
     private final String secretKey;
@@ -31,6 +33,7 @@ public class JwtUtil {
         this.accessTokenExpiration = accessTokenExpiration;
         this.secretKey=secretKey;
     }
+
 
     public String extractEmail(String token) {
         Jwt jwt = jwtDecoder.decode(token);

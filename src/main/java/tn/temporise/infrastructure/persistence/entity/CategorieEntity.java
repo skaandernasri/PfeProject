@@ -26,5 +26,9 @@ public class CategorieEntity {
 
     @OneToMany(mappedBy = "categorie", cascade = CascadeType.ALL)
     private List<ProduitEntity> produits = new ArrayList<>();
+
+    public CategorieEntity(Long id) {
+        this.id=id;
+    }
 }
 

@@ -1,15 +1,14 @@
 package tn.temporise.domain.port;
 
-import tn.temporise.infrastructure.persistence.entity.CategorieEntity;
+import tn.temporise.domain.model.Categorie;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface CategorieRepo {
-    public CategorieEntity save(CategorieEntity categorie);
-    public Optional<CategorieEntity> findById(Long id);
-    public List<CategorieEntity> findAll();
-    public CategorieEntity update(CategorieEntity categorie);
+    public Categorie save(Categorie categorie);
+    public Categorie findById(Long id);
+    public List<Categorie> findAll();
+    public Categorie update(Categorie categorie);
     public void deleteById(Long id);
     public void deleteAll();
 }

@@ -1,14 +1,17 @@
 package tn.temporise.domain.model;
 
 
-import java.util.Set;
+import lombok.Builder;
 
+import java.util.Set;
+@Builder
 public record Produit(
         Long id,
         String nom,
         String description,
         double prix,
-        int stock,
+        Long stock,
         Set<Promotion> promotions,
-        Categorie categorie
+        Categorie categorie,
+        int quantite
 ) {}

@@ -6,14 +6,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import tn.temporise.application.exception.UsernameNotFoundException;
+import tn.temporise.application.mapper.AuthMapper;
 import tn.temporise.application.service.CustomUserDetailsService;
+import tn.temporise.domain.model.Authentification;
 import tn.temporise.domain.model.CustomUserDetails;
+import tn.temporise.domain.model.Role;
+import tn.temporise.domain.model.UtilisateurModel;
 import tn.temporise.domain.port.AuthRepo;
 import tn.temporise.domain.port.UserRepo;
 import tn.temporise.infrastructure.persistence.entity.AuthentificationEntity;
-import tn.temporise.infrastructure.persistence.entity.UtilisateurEntity;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -28,6 +32,8 @@ class CustomUserDetailsServiceTest {
 
     @InjectMocks
     private CustomUserDetailsService customUserDetailsService;
+    @Mock
+    private AuthMapper authMapper;
 
     @BeforeEach
     void setUp() {
@@ -37,15 +43,16 @@ class CustomUserDetailsServiceTest {
     @Test
     void testLoadUserByUsername_Success() {
         // Mock user and authentication
-        UtilisateurEntity user = new UtilisateurEntity();
-        user.setEmail("test@example.com");
+        UtilisateurModel user = new UtilisateurModel(1L,"test@example.com", Set.of(Role.ADMIN));
         AuthentificationEntity auth = new AuthentificationEntity();
         auth.setProviderId("0");
         auth.setPassword("password");
+        Authentification authModel = new Authentification(0L, "password","0");
+        when(authMapper.entityToModel(auth)).thenReturn(authModel);
 
         // Mock repository behavior
         when(userRepo.findByEmail("test@example.com")).thenReturn(Optional.of(user));
-        when(authRepo.findByUserEmail("test@example.com")).thenReturn(Optional.of(auth));
+        when(authRepo.findByUserEmail("test@example.com")).thenReturn(Optional.of(authModel));
 
         // Call the method under test
         CustomUserDetails result = customUserDetailsService.loadUserByUsername("test@example.com");

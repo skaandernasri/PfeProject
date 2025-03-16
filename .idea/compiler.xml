@@ -4,7 +4,7 @@
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" />
       <profile name="Annotation profile for tempo-rise-api" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceOutputDir name="target/generated-sources/openapi" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">

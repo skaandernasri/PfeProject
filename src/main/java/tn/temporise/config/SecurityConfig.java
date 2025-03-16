@@ -49,11 +49,15 @@ public class SecurityConfig {
                         ).permitAll()
                         //.requestMatchers(HttpMethod.POST,"/tempo-rise/api/v1/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/v1/auth/refresh").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/v1/produits/**","/v1/categories/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/v1/produits/**","/v1/categories/**").hasAnyAuthority("ADMIN","GESTIONNAIRE")
-                        .requestMatchers(HttpMethod.PUT, "/v1/produits/**","/v1/categories/**").hasAnyAuthority("ADMIN","GESTIONNAIRE")
-                        .requestMatchers(HttpMethod.DELETE,"/v1/produits/**","/v1/categories/**").hasAnyAuthority("ADMIN","GESTIONNAIRE")
-                        .anyRequest().authenticated()
+                        .requestMatchers(HttpMethod.GET, "/v1/produits/**"
+                                ,"/v1/categories/**","/v1/paniers/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/v1/produits/**"
+                                ,"/v1/categories/**").hasAnyAuthority("ADMIN","GESTIONNAIRE")
+                        .requestMatchers(HttpMethod.PUT, "/v1/produits/**"
+                                ,"/v1/categories/**").hasAnyAuthority("ADMIN","GESTIONNAIRE")
+                        .requestMatchers(HttpMethod.DELETE,"/v1/produits/**"
+                                ,"/v1/categories/**").hasAnyAuthority("ADMIN","GESTIONNAIRE")
+                        .anyRequest().permitAll()
                 )
                 .exceptionHandling(exception -> exception
                         .accessDeniedHandler(accessDeniedHandler) // Use custom access denied handler

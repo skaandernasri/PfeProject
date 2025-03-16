@@ -11,11 +11,9 @@ import tn.temporise.domain.model.Categorie;
 import tn.temporise.domain.model.CategorieRequest;
 import tn.temporise.domain.model.CategorieResponse;
 import tn.temporise.domain.port.CategorieRepo;
-import tn.temporise.infrastructure.persistence.entity.CategorieEntity;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -23,15 +21,16 @@ import java.util.stream.Collectors;
 public class CategorieService {
     @Autowired
     private CategorieRepo categorieRepo;
+
     @Autowired
     private CategorieMapper categorieMapper;
+
     // Create: Save a new category
     public CategorieResponse createCategorie(CategorieRequest categorieRequest) {
         try {
-            Categorie categorie = categorieMapper.dtoToModel(categorieRequest); // Convert request DTO to model
-            CategorieEntity categorieEntity = categorieMapper.modelToEntity(categorie); // Convert model to entity
-            CategorieEntity savedEntity = categorieRepo.save(categorieEntity); // Save entity to DB
-            return categorieMapper.entityToResponse(savedEntity); // Convert the saved entity back to model
+            Categorie categorie = categorieMapper.dtoToModel(categorieRequest); // Convert DTO to model
+            Categorie savedCategorie = categorieRepo.save(categorie); // Save model to DB
+            return categorieMapper.modelToResponse(savedCategorie); // Convert model to response
         } catch (Exception e) {
             throw new InternalServerErrorException("Failed to create category: " + e.getMessage());
         }
@@ -40,32 +39,30 @@ public class CategorieService {
     // Read: Retrieve a category by its ID
     public CategorieResponse getCategorieById(Long id) {
         try {
-            Optional<CategorieEntity> categorie = categorieRepo.findById(id); // Find category by ID
-            if (categorie.isPresent()) {
-                return categorieMapper.entityToResponse(categorie.get()); // Convert entity to model
+            Categorie categorie = categorieRepo.findById(id);
+            if (categorie == null) {
+                throw new NotFoundException("Categorie not found with id: " + id);
             }
-            throw new NotFoundException("Category not found");
-        }
-        catch (NotFoundException e){
+            return categorieMapper.modelToResponse(categorie);
+        } catch (NotFoundException e) {
             throw e;
-        }
-        catch (Exception e){
-            throw new InternalServerErrorException("Failed to retrieve Categorie : "+e.getMessage());
+        } catch (Exception e) {
+            throw new InternalServerErrorException("Failed to retrieve category: " + e.getMessage());
         }
     }
 
     // Read: Retrieve all categories
     public List<CategorieResponse> getAllCategories() {
         try {
-            List<CategorieResponse> categorieList = categorieRepo.findAll() // Fetch all categories from DB
+            List<CategorieResponse> categorieList = categorieRepo.findAll()
                     .stream()
-                    .map(categorieMapper::entityToResponse) // Map entity to model
-                    .collect(Collectors.toList());
+                    .map(categorieMapper::modelToResponse)
+                    .toList();
             if (categorieList.isEmpty()) {
-                throw new NotFoundException("There is no categories");
+                throw new NotFoundException("There are no categories");
             }
             return categorieList;
-        }catch (NotFoundException e){
+        } catch (NotFoundException e) {
             throw e;
         } catch (Exception e) {
             throw new InternalServerErrorException("Failed to retrieve categories: " + e.getMessage());
@@ -75,18 +72,27 @@ public class CategorieService {
     // Update: Update an existing category
     public CategorieResponse updateCategorie(Long id, CategorieRequest categorieRequest) {
         try {
-            Optional<CategorieEntity> optionalCategorie = categorieRepo.findById(id)
-                    .map(existingEntity -> {
-                        Categorie categorie = categorieMapper.dtoToModel(categorieRequest); // Convert DTO to model
-                        CategorieEntity updatedEntity = categorieMapper.modelToEntity(categorie); // Convert model to entity
-                        updatedEntity.setId(id); // Ensure the ID remains the same
-                        return categorieRepo.save(updatedEntity); // Save updated entity
-                    });
-            if (optionalCategorie.isPresent()) {
-                return categorieMapper.entityToResponse(optionalCategorie.get()); // Convert to model and return
+            Categorie existingCategorie = categorieRepo.findById(id);
+            if (existingCategorie == null) {
+                throw new NotFoundException("Category not found with id: " + id);
             }
-            throw new NotFoundException("Category not found");
-        }catch (NotFoundException e){
+
+            Categorie updatedCategorie = new Categorie(
+                    id, // Assignation de l'ID
+                    categorieRequest.getNom(),
+                    categorieRequest.getDescription()
+            );
+
+            updatedCategorie = categorieRepo.update(updatedCategorie);
+            if (updatedCategorie == null) {
+                throw new InternalServerErrorException("Failed to update category: Update returned null");
+            }
+            CategorieResponse response = categorieMapper.modelToResponse(updatedCategorie);
+            if (response == null) {
+                throw new InternalServerErrorException("Failed to map Categorie to CategorieResponse");
+            }
+            return response;
+        } catch (NotFoundException e) {
             throw e;
         } catch (Exception e) {
             throw new InternalServerErrorException("Failed to update category: " + e.getMessage());
@@ -96,12 +102,12 @@ public class CategorieService {
     // Delete: Delete a category by its ID
     public void deleteCategorie(Long id) {
         try {
-            Optional<CategorieEntity> categorie = categorieRepo.findById(id); // Find category by ID
-            if (categorie.isEmpty()) {
-                throw new NotFoundException("Category not found");
+            Categorie categorie = categorieRepo.findById(id);
+            if (categorie == null) {
+                throw new NotFoundException("Category not found with id: " + id);
             }
-            categorieRepo.deleteById(id); // Delete category by ID
-        }catch (NotFoundException e){
+            categorieRepo.deleteById(id);
+        } catch (NotFoundException e) {
             throw e;
         } catch (Exception e) {
             throw new InternalServerErrorException("Failed to delete category: " + e.getMessage());
@@ -111,15 +117,12 @@ public class CategorieService {
     // Delete: Delete all categories
     public void deleteAllCategories() {
         try {
-            List<Categorie> categorieList = categorieRepo.findAll() // Fetch all categories
-                    .stream()
-                    .map(categorieMapper::entityToModel) // Map entity to model
-                    .toList();
+            List<Categorie> categorieList = categorieRepo.findAll();
             if (categorieList.isEmpty()) {
                 throw new NotFoundException("There are no categories to delete");
             }
-            categorieRepo.deleteAll(); // Delete all categories
-        }catch (NotFoundException e){
+            categorieRepo.deleteAll();
+        } catch (NotFoundException e) {
             throw e;
         } catch (Exception e) {
             throw new InternalServerErrorException("Failed to delete all categories: " + e.getMessage());
