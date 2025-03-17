@@ -1,6 +1,11 @@
 package tn.temporise.tempo_rise_api.tu;
-import static org.mockito.Mockito.*;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import java.util.Optional;
+import java.util.Set;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -8,15 +13,18 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import tn.temporise.application.exception.ConflictException;
+import tn.temporise.application.exception.RegistrationException;
+import tn.temporise.application.mapper.AuthMapper;
 import tn.temporise.application.mapper.RegMapper;
-import tn.temporise.domain.model.UtilisateurModel;
-import tn.temporise.infrastructure.persistence.entity.AuthentificationEntity;
-import tn.temporise.infrastructure.persistence.entity.UtilisateurEntity;
 import tn.temporise.application.service.RegistrationService;
+import tn.temporise.domain.model.Authentification;
+import tn.temporise.domain.model.Role;
+import tn.temporise.domain.model.UtilisateurModel;
 import tn.temporise.domain.port.AuthRepo;
 import tn.temporise.domain.port.UserRepo;
-
-import java.util.Optional;
+import tn.temporise.infrastructure.persistence.entity.AuthentificationEntity;
+import tn.temporise.infrastructure.persistence.entity.TypeAuthentification;
+import tn.temporise.infrastructure.persistence.entity.UtilisateurEntity;
 
 class RegistrationServiceTest {
 
@@ -30,7 +38,11 @@ class RegistrationServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
-    RegMapper regMapper;
+    private AuthMapper authMapper;
+
+    @Mock
+    private RegMapper regMapper;
+
     @InjectMocks
     private RegistrationService registrationService;
 
@@ -41,37 +53,33 @@ class RegistrationServiceTest {
 
     @Test
     void testRegister_NewUser() {
-        // Mock user and repository behavior
+        // Given: A new user model
+        UtilisateurModel utilisateurModel = new UtilisateurModel(null,"test","test@example.com","Password123.", Set.of(Role.ADMIN));
         UtilisateurEntity userEntity = new UtilisateurEntity();
         userEntity.setEmail("test@example.com");
-        userEntity.setPassword("password");
-
+        userEntity.setPassword("Password123.");
         when(userRepo.findByEmail("test@example.com")).thenReturn(Optional.empty());
-        when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
-        UtilisateurModel utilisateurModel=regMapper.entityToModel(userEntity);
-        // Call the method under test
+        when(passwordEncoder.encode("Password123.")).thenReturn("encodedPassword123");
+
+        when(regMapper.modelToEntity(utilisateurModel)).thenReturn(userEntity);
+        when(regMapper.entityToModel(userEntity)).thenReturn(utilisateurModel);
         registrationService.register(utilisateurModel);
 
-        // Verify interactions
-        verify(userRepo, times(1)).save(userEntity);
-        verify(authRepo, times(1)).save(any(AuthentificationEntity.class));
+        verify(userRepo, times(1)).save(any(UtilisateurModel.class));
+        verify(authRepo, times(1)).save(any(Authentification.class)); // Ensure authRepo is saving the right object
     }
 
     @Test
     void testRegister_EmailAlreadyRegistered() {
-        // Mock user and repository behavior
         UtilisateurEntity userEntity = new UtilisateurEntity();
         userEntity.setEmail("test@example.com");
-        AuthentificationEntity auth = new AuthentificationEntity();
-        auth.setProviderId("0"); // Set a non-null providerId
-        UtilisateurModel utilisateurModel=regMapper.entityToModel(userEntity);
+        Authentification auth = new Authentification(null,null,"0",null,null,null);
+        UtilisateurModel utilisateurModel=new UtilisateurModel(null,"test@example.com");
 
-        when(userRepo.findByEmail("test@example.com")).thenReturn(Optional.of(userEntity));
+        when(regMapper.entityToModel(userEntity)).thenReturn(utilisateurModel);
+        when(userRepo.findByEmail("test@example.com")).thenReturn(Optional.of(utilisateurModel));
         when(authRepo.findByUserEmail("test@example.com")).thenReturn(Optional.of(auth));
 
-        // Assert exception
-        assertThrows(ConflictException.class, () -> {
-            registrationService.register(utilisateurModel);
-        });
+        assertThrows(RegistrationException.class, () -> registrationService.register(utilisateurModel));
     }
 }

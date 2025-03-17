@@ -13,11 +13,7 @@ import tn.temporise.application.exception.BadCredentialsException;
 import tn.temporise.application.exception.InternalServerErrorException;
 import tn.temporise.application.exception.NonLocalProviderException;
 import tn.temporise.application.exception.UsernameNotFoundException;
-import tn.temporise.domain.model.CustomUserDetails;
-import tn.temporise.domain.model.SigninUserRequest;
-import tn.temporise.domain.model.TokenResponse;
-import tn.temporise.infrastructure.persistence.entity.AuthentificationEntity;
-import tn.temporise.infrastructure.persistence.entity.UtilisateurEntity;
+import tn.temporise.domain.model.*;
 import tn.temporise.domain.port.AuthRepo;
 import tn.temporise.domain.port.UserRepo;
 import tn.temporise.infrastructure.security.utils.JwtUtil;
@@ -40,14 +36,14 @@ public class CustomUserDetailsService implements UserDetailsService {
     public CustomUserDetails loadUserByUsername(String email)  {
         try {
             // Find the user by email
-            UtilisateurEntity user = userRepo.findByEmail(email)
+            UtilisateurModel user = userRepo.findByEmail(email)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email,"404"));
 
             // Check if the user has a non-local provider (e.g., Google or Facebook)
-            AuthentificationEntity auth = authenticationRepo.findByUserEmail(user.getEmail())
+            Authentification auth = authenticationRepo.findByUserEmail(user.email())
                     .orElseThrow(() -> new UsernameNotFoundException("Authentication method not found for user: " + email,"404"));
 
-            if (!auth.getProviderId().equals("0")) {
+            if (!auth.providerId().equals("0")) {
                 // If the provider is not local, throw an exception
                 throw new NonLocalProviderException("User is registered with a non-local provider. Please use the appropriate login method.","400");
             }
@@ -55,14 +51,14 @@ public class CustomUserDetailsService implements UserDetailsService {
 //            log.info("Roles fetched: " + user.getRoles());
             // If the provider is local, return the UserDetails object
             return new CustomUserDetails(
-                    user.getEmail(),
-                    auth.getPassword(),
-                    user.getRoles().stream()
+                    user.email(),
+                    auth.password(),
+                    user.roles().stream()
                             .map(role -> new SimpleGrantedAuthority(role.name()))
                             .collect(Collectors.toList()),
-                    auth.getProviderId()
+                    auth.providerId()
             );
-        } catch (InternalServerErrorException e) {
+        } catch (Exception e) {
             log.error("Error loading user by username: ", e);
             throw new UsernameNotFoundException("internal error occured","500");
         }
@@ -71,22 +67,22 @@ public class CustomUserDetailsService implements UserDetailsService {
     public CustomUserDetails getUserDetails(String email,String provider_id) throws UsernameNotFoundException {
         try {
             // Find the user by email
-            UtilisateurEntity user = userRepo.findByEmail(email)
+            UtilisateurModel user = userRepo.findByEmail(email)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email,"404"));
 
             // Check the authentication method
-            AuthentificationEntity auth = authenticationRepo.findByUserEmailAndProviderId(user.getEmail(),provider_id)
+            Authentification auth = authenticationRepo.findByUserEmailAndProviderId(user.email(),provider_id)
                     .orElseThrow(() -> new UsernameNotFoundException("Authentication method not found for user: " + email,"404"));
 
-            String providerId = auth.getProviderId(); // Retrieve providerId
+            String providerId = auth.providerId(); // Retrieve providerId
 
             // Convert roles to authorities
-            Collection<GrantedAuthority> authorities = user.getRoles().stream()
+            Collection<GrantedAuthority> authorities = user.roles().stream()
                     .map(role -> new SimpleGrantedAuthority(role.name()))
                     .collect(Collectors.toList());
 
             // Return custom UserDetails object
-            return new CustomUserDetails(user.getEmail(), auth.getPassword(), authorities, providerId);
+            return new CustomUserDetails(user.email(), auth.password(), authorities, providerId);
         } catch (UsernameNotFoundException e) {
             log.error("Error getting user details: ", e);
             throw new UsernameNotFoundException("Failed to get user details","404");
@@ -113,12 +109,12 @@ public class CustomUserDetailsService implements UserDetailsService {
             response.setToken(token);
 
             // Retrieve the authentication record from the database
-            Optional<AuthentificationEntity> authOpt = authenticationRepo.findByUserEmailAndProviderId(userDetails.getUsername(), userDetails.getProviderId());
+            Optional<Authentification> authOpt = authenticationRepo.findByUserEmailAndProviderId(userDetails.getUsername(), userDetails.getProviderId());
 
             // If the user exists and the token is empty, save the refresh token to the database
             if (authOpt.isPresent()) {
-                AuthentificationEntity auth = authOpt.get();
-                if (auth.getRefreshToken() == null || auth.getRefreshToken().isEmpty()) {
+                Authentification auth = authOpt.get();
+                if (auth.token() == null || auth.token().isEmpty()) {
                     tokenService.saveToken(userDetails.getUsername(), refreshToken, userDetails.getProviderId());
                 }
             } else {

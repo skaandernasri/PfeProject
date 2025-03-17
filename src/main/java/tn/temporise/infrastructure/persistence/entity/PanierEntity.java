@@ -28,7 +28,7 @@ public class PanierEntity {
     private Set<ProduitEntity> produits=new HashSet<>();
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "utilisateur_id", nullable = false)
     private UtilisateurEntity utilisateur;
 
 }

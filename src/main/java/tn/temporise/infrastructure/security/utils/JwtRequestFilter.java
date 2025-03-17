@@ -48,9 +48,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             }
 
             // Validate the JWT token
-            email = jwtUtil.extractEmail(jwt);
-            logger.debug("Extracted email from JWT: {},"+ email);
-
+            try {
+                email = jwtUtil.extractEmail(jwt);
+                logger.debug("Extracted email from JWT: {},"+ email);
+            } catch (Exception e) {
+                logger.error("Invalid JWT token: {}"+ e.getMessage());
+                removeJwtCookie(response);
+                throw new UnauthorizedException("Unauthorized: Invalid or malformed JWT token");
+            }
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 CustomUserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
@@ -70,8 +75,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             // Continue the filter chain
             chain.doFilter(request, response);
         } catch (UnauthorizedException e) {
+            response.setContentType("application/json");
+            response.getWriter().write("{\"message\": \"" + e.getMessage() + "\"}");
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.getWriter().write(e.getMessage());
+            //response.getWriter().write(e.getMessage());
         }
     }
     private String getJwtFromAuthorizationHeader(HttpServletRequest request) {

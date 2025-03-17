@@ -1,13 +1,13 @@
 package tn.temporise.domain.port;
 
 
-import tn.temporise.infrastructure.persistence.entity.AuthentificationEntity;
+import tn.temporise.domain.model.Authentification;
 
 import java.util.Optional;
 public interface AuthRepo {
-    Optional<AuthentificationEntity> findByUserEmail(String email);
-    Optional<AuthentificationEntity> findByUserEmailAndProviderId(String email, String providerId);
-    Optional<AuthentificationEntity> findByRefreshToken (String token);
-    AuthentificationEntity save(AuthentificationEntity authentification);
+    Optional<Authentification> findByUserEmail(String email);
+    Optional<Authentification> findByUserEmailAndProviderId(String email, String providerId);
+    Optional<Authentification> findByRefreshToken (String token);
+    Authentification save(Authentification authentification);
 }
 

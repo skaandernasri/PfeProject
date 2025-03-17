@@ -1,22 +1,19 @@
 package tn.temporise.tempo_rise_api.ti;
 
 import io.restassured.http.ContentType;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import tn.temporise.domain.model.ProductRequest;
-
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
 class ProductControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
+    @Order(1)
     void testCreateProduct() {
-        ProductRequest productRequest = new ProductRequest();
-        productRequest.setNom("Smartphone");
-        productRequest.setDescription("High-end smartphone");
-        productRequest.setPrix(999.99);
-        productRequest.setStock(10L);
+        ProductRequest productRequest = createProductRequest("Smartphone", "High-end smartphone", 999.99, 10L, categoryId);
 
         given()
                 .contentType(ContentType.JSON)
@@ -31,6 +28,7 @@ class ProductControllerIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
+    @Order(2)
     void testGetAllProducts() {
         given()
                 .cookie("jwt", jwtToken)
@@ -42,9 +40,8 @@ class ProductControllerIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
+    @Order(3)
     void testGetProductById() {
-        Long productId = 1L; // Remplacez par un ID existant dans votre base de données
-
         given()
                 .cookie("jwt", jwtToken)
                 .when()
@@ -55,13 +52,9 @@ class ProductControllerIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
+    @Order(4)
     void testUpdateProduct() {
-        Long productId = 1L; // Remplacez par un ID existant dans votre base de données
-        ProductRequest productRequest = new ProductRequest();
-        productRequest.setNom("Updated Smartphone");
-        productRequest.setDescription("Updated description");
-        productRequest.setPrix(899.99);
-        productRequest.setStock(5L);
+        ProductRequest productRequest = createProductRequest("Updated Smartphone", "Updated description", 899.99, 5L, categoryId);
 
         given()
                 .contentType(ContentType.JSON)
@@ -75,10 +68,10 @@ class ProductControllerIntegrationTest extends BaseIntegrationTest {
                 .body("description", equalTo("Updated description"));
     }
 
-    @Test
-    void testDeleteProduct() {
-        Long productId = 1L; // Remplacez par un ID existant dans votre base de données
 
+    @Test
+    @Order(5)
+    void testDeleteProduct() {
         given()
                 .cookie("jwt", jwtToken)
                 .when()
@@ -90,6 +83,7 @@ class ProductControllerIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
+    @Order(6)
     void testDeleteAllProducts() {
         given()
                 .cookie("jwt", jwtToken)
@@ -99,5 +93,14 @@ class ProductControllerIntegrationTest extends BaseIntegrationTest {
                 .statusCode(HttpStatus.OK.value())
                 .body("code", equalTo("200"))
                 .body("message", equalTo("Tous les produits ont été supprimés avec succès"));
+    }
+    private ProductRequest createProductRequest(String nom, String description, double prix, long stock, Long categorieId) {
+        ProductRequest productRequest = new ProductRequest();
+        productRequest.setNom(nom);
+        productRequest.setDescription(description);
+        productRequest.setPrix(prix);
+        productRequest.setStock(stock);
+        productRequest.setCategorie(categorieId);
+        return productRequest;
     }
 }

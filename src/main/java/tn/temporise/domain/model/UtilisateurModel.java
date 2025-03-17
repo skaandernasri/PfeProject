@@ -16,5 +16,14 @@ public record UtilisateurModel(
     public UtilisateurModel(String email, Role role) {
         this(null, null, email, null, Set.of(role));
     }
+    public UtilisateurModel(Long id) {
+        this(id, null, null, null, null);
+    }
+    public UtilisateurModel(Long id,String email) {
+        this(id, null, email, null, null);
+    }
+    public UtilisateurModel(Long id,String email,Set<Role> roles) {
+        this(id, null, email, null, roles);
+    }
 
 }

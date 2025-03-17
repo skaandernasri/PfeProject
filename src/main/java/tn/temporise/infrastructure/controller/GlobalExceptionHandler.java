@@ -12,14 +12,14 @@ import tn.temporise.domain.model.Response;
 @ControllerAdvice(annotations = RestController.class)
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<Response> handleBadRequestException(BadRequestException ex) {
+
+    @ExceptionHandler(RegistrationException.class)
+    public ResponseEntity<Response> handelRegistrationException(RegistrationException ex) {
         Response response = new Response();
-        response.setCode(ex.getCode());
         response.setMessage(ex.getMessage());
+        response.setCode(ex.getCode());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
-
     @ExceptionHandler(PasswordException.class)
     public ResponseEntity<Response> handelPasswordException(PasswordException ex) {
         Response response = new Response();

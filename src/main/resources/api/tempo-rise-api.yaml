@@ -783,6 +783,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PanierResponse'
+    delete:
+      summary: Supprimer tout les paniers
+      operationId: deleteAllPaniers
+      tags:
+        - Paniers
+      responses:
+        '204':
+          description: Tout les paniers ont été supprimées avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
 
   /v1/paniers/{id}:
     get:
@@ -1461,6 +1473,10 @@ components:
               quantite:
                 type: integer
                 description: La quantité de l'article dans le panier
+      required:
+        - id
+        - utilisateurId
+        - articles
     ProductRequest:
       type: object
       properties:
@@ -1559,6 +1575,7 @@ components:
       required:
         - id
         - nom
+        - description
         - prix
         - stock
         - categorie

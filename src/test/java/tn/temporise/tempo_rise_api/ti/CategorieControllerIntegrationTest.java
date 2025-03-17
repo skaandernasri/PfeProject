@@ -7,18 +7,16 @@ import org.springframework.http.HttpStatus;
 import tn.temporise.domain.model.CategorieRequest;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
+
 class CategorieControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     @Order(1)
     void testCreateCategory() {
-        CategorieRequest categorieRequest = new CategorieRequest();
-        categorieRequest.setNom("Electronics");
-        categorieRequest.setDescription("Gadgets and devices");
+        CategorieRequest categorieRequest = createCategorieRequest("Electronics", "Gadgets and devices");
 
         given()
                 .contentType(ContentType.JSON)
-                .body(categorieRequest)
                 .body(categorieRequest)
                 .cookie("jwt", jwtToken)
                 .when()
@@ -27,7 +25,6 @@ class CategorieControllerIntegrationTest extends BaseIntegrationTest {
                 .statusCode(HttpStatus.CREATED.value())
                 .body("nom", equalTo("Electronics"))
                 .body("description", equalTo("Gadgets and devices"));
-
     }
 
     @Test
@@ -45,10 +42,8 @@ class CategorieControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     @Order(3)
     void testGetCategoryById() {
-        Long categoryId = 1L; // Remplacez par un ID existant dans votre base de données
-
         given()
-                //.cookie("jwt", jwtToken)
+                .cookie("jwt", jwtToken)
                 .when()
                 .get("/v1/categories/" + categoryId)
                 .then()
@@ -59,10 +54,7 @@ class CategorieControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     @Order(4)
     void testUpdateCategory() {
-        Long categoryId = 1L; // Remplacez par un ID existant dans votre base de données
-        CategorieRequest categorieRequest = new CategorieRequest();
-        categorieRequest.setNom("Updated Electronics");
-        categorieRequest.setDescription("Updated description");
+        CategorieRequest categorieRequest = createCategorieRequest("Updated Electronics", "Updated description");
 
         given()
                 .contentType(ContentType.JSON)
@@ -76,11 +68,11 @@ class CategorieControllerIntegrationTest extends BaseIntegrationTest {
                 .body("description", equalTo("Updated description"));
     }
 
+
+
     @Test
     @Order(5)
     void testDeleteCategory() {
-        Long categoryId = 1L; // Remplacez par un ID existant dans votre base de données
-
         given()
                 .cookie("jwt", jwtToken)
                 .when()
@@ -102,5 +94,11 @@ class CategorieControllerIntegrationTest extends BaseIntegrationTest {
                 .statusCode(HttpStatus.OK.value())
                 .body("code", equalTo("200"))
                 .body("message", equalTo("Toutes les catégories ont été supprimés avec succès"));
+    }
+    private CategorieRequest createCategorieRequest(String nom, String description) {
+        CategorieRequest categorieRequest = new CategorieRequest();
+        categorieRequest.setNom(nom);
+        categorieRequest.setDescription(description);
+        return categorieRequest;
     }
 }

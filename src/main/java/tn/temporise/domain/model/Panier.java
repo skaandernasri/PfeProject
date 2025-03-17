@@ -8,5 +8,9 @@ import java.util.Set;
 public record Panier(
         Long id,
         Set<Produit> produits,
-        UtilisateurModel user
-) {}
+        UtilisateurModel utilisateur
+) {
+    public Panier withId(Long id) {
+        return new Panier(id, this.produits, this.utilisateur);
+    }
+}

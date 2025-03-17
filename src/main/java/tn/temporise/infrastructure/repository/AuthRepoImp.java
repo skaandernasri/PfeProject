@@ -2,6 +2,8 @@ package tn.temporise.infrastructure.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import tn.temporise.application.mapper.AuthMapper;
+import tn.temporise.domain.model.Authentification;
 import tn.temporise.domain.port.AuthRepo;
 import tn.temporise.infrastructure.persistence.entity.AuthentificationEntity;
 
@@ -10,23 +12,28 @@ import java.util.Optional;
 @Repository
 public class AuthRepoImp implements AuthRepo {
     private final AuthJpaRepo authJpaRepo;
+    private final AuthMapper authMapper;
     @Override
-    public Optional<AuthentificationEntity> findByUserEmail(String email) {
-        return authJpaRepo.findByUserEmail(email);
+    public Optional<Authentification> findByUserEmail(String email) {
+        Optional<AuthentificationEntity> authentification=authJpaRepo.findByUserEmail(email);
+        return authentification.map(authMapper::entityToModel);
     }
 
     @Override
-    public Optional<AuthentificationEntity> findByUserEmailAndProviderId(String email, String providerId) {
-        return authJpaRepo.findByUserEmailAndProviderId(email,providerId);
+    public Optional<Authentification> findByUserEmailAndProviderId(String email, String providerId) {
+        Optional<AuthentificationEntity> authentification=authJpaRepo.findByUserEmailAndProviderId(email,providerId);
+        return authentification.map(authMapper::entityToModel);
     }
 
     @Override
-    public Optional<AuthentificationEntity> findByRefreshToken(String token) {
-        return authJpaRepo.findByRefreshToken(token);
+    public Optional<Authentification> findByRefreshToken(String token) {
+        Optional<AuthentificationEntity> authentification=authJpaRepo.findByRefreshToken(token);
+        return authentification.map(authMapper::entityToModel);
     }
 
     @Override
-    public AuthentificationEntity save(AuthentificationEntity authentification) {
-        return authJpaRepo.save(authentification);
+    public Authentification save(Authentification authentification) {
+        AuthentificationEntity auth=authJpaRepo.save(authMapper.modelToEntity(authentification));
+        return authMapper.entityToModel(auth);
     }
 }

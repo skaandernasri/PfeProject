@@ -33,6 +33,10 @@ public class UtilisateurEntity {
         this.roles.add(role);
 
     }
+    public UtilisateurEntity(Long id) {
+        this.id=id;
+
+    }
 
 
     public UtilisateurEntity(String email, Role role) {
