@@ -1,7 +1,5 @@
 package tn.temporise.tempo_rise_api.tu;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 
 import jakarta.servlet.http.Cookie;
@@ -23,6 +21,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import tn.temporise.infrastructure.security.utils.JwtRequestFilter;
 import tn.temporise.infrastructure.security.utils.JwtUtil;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 
 class LogoutServiceTest {

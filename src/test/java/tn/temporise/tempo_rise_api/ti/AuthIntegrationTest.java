@@ -6,20 +6,14 @@ import io.restassured.response.ValidatableResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
+
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import tn.temporise.application.mapper.AuthMapper;
 import tn.temporise.application.mapper.RegMapper;
 import tn.temporise.domain.model.Response;
 import tn.temporise.domain.model.UtilisateurModel;
 import tn.temporise.domain.port.AuthRepo;
 import tn.temporise.domain.port.UserRepo;
-import tn.temporise.infrastructure.persistence.entity.AuthentificationEntity;
-import tn.temporise.infrastructure.persistence.entity.TypeAuthentification;
-import tn.temporise.infrastructure.persistence.entity.UtilisateurEntity;
 
 import static org.junit.jupiter.api.Assertions.*;
 

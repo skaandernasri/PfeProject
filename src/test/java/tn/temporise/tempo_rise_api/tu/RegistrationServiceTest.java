@@ -12,7 +12,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import tn.temporise.application.exception.ConflictException;
 import tn.temporise.application.exception.RegistrationException;
 import tn.temporise.application.mapper.AuthMapper;
 import tn.temporise.application.mapper.RegMapper;
@@ -22,8 +21,6 @@ import tn.temporise.domain.model.Role;
 import tn.temporise.domain.model.UtilisateurModel;
 import tn.temporise.domain.port.AuthRepo;
 import tn.temporise.domain.port.UserRepo;
-import tn.temporise.infrastructure.persistence.entity.AuthentificationEntity;
-import tn.temporise.infrastructure.persistence.entity.TypeAuthentification;
 import tn.temporise.infrastructure.persistence.entity.UtilisateurEntity;
 
 class RegistrationServiceTest {
