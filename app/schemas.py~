@@ -1,0 +1,8 @@
+from typing import Optional
+from sqlmodel import SQLModel
+
+class UtilisateurSchema(SQLModel):
+    id: int
+    nom: Optional[str] = None
+    email: str
+    nomLength: int

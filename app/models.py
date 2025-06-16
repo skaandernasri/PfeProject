@@ -1,0 +1,26 @@
+from typing import Optional
+from datetime import date
+from sqlmodel import SQLModel, Field, Column, Float
+
+class Utilisateur(SQLModel, table=True):
+    __tablename__ = "utilisateur"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    genre: str
+    date_naissance: date
+
+class Produit(SQLModel, table=True):
+    __tablename__ = "produit"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    categorie_id: int
+    marque: str
+    taille: str
+    couleur: str
+
+class SuiviClient(SQLModel, table=True):
+    __tablename__ = "suivi_client"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    utilisateur_id: int = Field(foreign_key="utilisateur.id")
+    produit_id: int = Field(foreign_key="produit.id")
+    type_action: str
+    score: float = Field(sa_column=Column(Float(precision=2)))
+    date: date
